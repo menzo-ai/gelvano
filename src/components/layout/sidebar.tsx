@@ -24,6 +24,7 @@ import {
   Gift,
   FileBadge,
   Brain,
+  Activity,
   Calendar,
   BarChart,
   Database,
@@ -73,6 +74,7 @@ const adminLinks = [
   { href: '/admin/messages', label: 'الرسائل', icon: MessageSquare },
   { href: '/admin/analytics', label: 'التحليلات', icon: BarChart3 },
   { href: '/admin/ai-settings', label: 'إعدادات AI', icon: Brain },
+  { href: '/admin/activity-log', label: 'سجل النشاط', icon: Activity },
   { href: '/admin/data', label: 'البيانات', icon: Database },
   { href: '/admin/settings', label: 'الإعدادات', icon: Settings2 },
 ]
