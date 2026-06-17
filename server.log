@@ -677,3 +677,78 @@ Require stack:
  ✓ Compiled in 112ms (1037 modules)
  ✓ Compiled in 637ms (1037 modules)
  ✓ Compiled in 349ms (629 modules)
+ ✓ Compiled in 370ms (629 modules)
+ ✓ Compiled in 601ms (1037 modules)
+ ⚠ ./src/app/layout.tsx
+Attempted import error: './providers' does not contain a default export (imported as 'Providers').
+
+Import trace for requested module:
+./src/app/layout.tsx
+ ⚠ ./src/app/layout.tsx
+Attempted import error: './providers' does not contain a default export (imported as 'Providers').
+
+Import trace for requested module:
+./src/app/layout.tsx
+ ⨯ ./src/components/layout/topbar.tsx
+Error: 
+  [31mx[0m Unexpected token `(`. Expected identifier, string literal, numeric literal or [ for the computed key
+    ,-[[36;1;4m/workspace/project/gelvano/src/components/layout/topbar.tsx[0m:88:1]
+ [2m88[0m |     </header>
+ [2m89[0m |   )
+ [2m90[0m | }
+ [2m91[0m |             onClick={() => setIsDark(!isDark)}
+    : [31;1m                     ^[0m
+ [2m92[0m |             className="p-2 rounded-lg hover:bg-slate-700/50 transition-colors"
+ [2m93[0m |           >
+ [2m94[0m |             {isDark ? (
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/layout/topbar.tsx
+./src/app/(admin)/layout.tsx
+ ⚠ ./src/app/layout.tsx
+Attempted import error: './providers' does not contain a default export (imported as 'Providers').
+
+Import trace for requested module:
+./src/app/layout.tsx
+ ⚠ ./src/app/layout.tsx
+Attempted import error: './providers' does not contain a default export (imported as 'Providers').
+
+Import trace for requested module:
+./src/app/layout.tsx
+ ⚠ ./src/app/layout.tsx
+Attempted import error: './providers' does not contain a default export (imported as 'Providers').
+
+Import trace for requested module:
+./src/app/layout.tsx
+ ⚠ ./src/app/layout.tsx
+Attempted import error: './providers' does not contain a default export (imported as 'Providers').
+
+Import trace for requested module:
+./src/app/layout.tsx
+ ⨯ ./src/app/providers.tsx
+Error: 
+  [31mx[0m Expected '(', got 'as'
+    ,-[[36;1;4m/workspace/project/gelvano/src/app/providers.tsx[0m:23:1]
+ [2m23[0m | 
+ [2m24[0m | export const useTheme = () => useContext(ThemeContext)
+ [2m25[0m | 
+ [2m26[0m | export function Providers as default({ children }: { children: React.ReactNode }) {
+    : [31;1m                          ^^[0m
+ [2m27[0m |   const [queryClient] = useState(
+ [2m28[0m |     () =>
+ [2m29[0m |       new QueryClient({
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/providers.tsx
+./src/components/ThemeToggle.tsx
+./src/components/layout/topbar.tsx
+./src/app/(admin)/layout.tsx
+ ✓ Compiled in 872ms (1054 modules)
