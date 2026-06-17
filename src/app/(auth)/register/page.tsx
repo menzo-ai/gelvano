@@ -58,7 +58,7 @@ export default function RegisterPage() {
       }
 
       if (result.requiresVerification) {
-        router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`)
+        router.push(`/verify-email?email=${encodeURIComponent(data.email)}`)
       } else {
         router.push('/dashboard')
       }
