@@ -32,3 +32,290 @@
  GET /_next/static/css/app/layout.css 404 in 551ms
  ✓ Compiled in 578ms (791 modules)
  GET /_next/static/css/app/layout.css?v=1781679231869 404 in 47ms
+ ✓ Compiled in 410ms (424 modules)
+ ✓ Compiled /_not-found in 169ms (791 modules)
+ ⨯ TypeError: Cannot read properties of undefined (reading 'call')
+    at Object.t [as require] (/workspace/project/gelvano/.next/server/webpack-runtime.js:1:143)
+    at JSON.parse (<anonymous>)
+digest: "1507726785"
+TypeError: Cannot read properties of undefined (reading 'call')
+    at Object.t [as require] (/workspace/project/gelvano/.next/server/webpack-runtime.js:1:143)
+    at require (/workspace/project/gelvano/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:16:18365)
+    at I (/workspace/project/gelvano/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:94362)
+    at /workspace/project/gelvano/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:96668
+    at F._fromJSON (/workspace/project/gelvano/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:97106)
+    at JSON.parse (<anonymous>)
+    at O (/workspace/project/gelvano/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:94083)
+    at t (/workspace/project/gelvano/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:100582)
+ ⨯ TypeError: Cannot read properties of undefined (reading 'call')
+    at Object.t [as require] (/workspace/project/gelvano/.next/server/webpack-runtime.js:1:143)
+    at require (/workspace/project/gelvano/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:16:18365)
+    at I (/workspace/project/gelvano/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:94362)
+    at /workspace/project/gelvano/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:96668
+    at F._fromJSON (/workspace/project/gelvano/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:97106)
+    at JSON.parse (<anonymous>)
+    at O (/workspace/project/gelvano/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:94083)
+    at t (/workspace/project/gelvano/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:100582)
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 887ms (1015 modules)
+ GET /_next/static/css/app/layout.css?v=1781679341035 500 in 2245ms
+ GET /_next/static/css/app/layout.css?v=1781679343376 404 in 70ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/workspace/project/gelvano/.next/server/vendor-chunks/react-hook-form.js'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/react-hook-form' in /workspace/project/gelvano/.next/server for build dependencies doesn't lead to expected result '/workspace/project/gelvano/.next/server/vendor-chunks/react-hook-form.js', but to 'Error: Can't resolve './vendor-chunks/react-hook-form' in '/workspace/project/gelvano/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/react-hook-form (expected /workspace/project/gelvano/.next/server/vendor-chunks/react-hook-form.js)
+<w>  at file dependencies /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file dependencies /workspace/project/gelvano/.next/server/app/_not-found/page.js
+<w>  at file /workspace/project/gelvano/.next/server/app/_not-found/page.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/swc/index.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/swc/index.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at resolve commonjs /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/@hookform' in /workspace/project/gelvano/.next/server for build dependencies doesn't lead to expected result '/workspace/project/gelvano/.next/server/vendor-chunks/@hookform.js', but to 'Error: Can't resolve './vendor-chunks/@hookform' in '/workspace/project/gelvano/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/@hookform (expected /workspace/project/gelvano/.next/server/vendor-chunks/@hookform.js)
+<w>  at file dependencies /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file dependencies /workspace/project/gelvano/.next/server/app/_not-found/page.js
+<w>  at file /workspace/project/gelvano/.next/server/app/_not-found/page.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/swc/index.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/swc/index.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at resolve commonjs /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/zod' in /workspace/project/gelvano/.next/server for build dependencies doesn't lead to expected result '/workspace/project/gelvano/.next/server/vendor-chunks/zod.js', but to 'Error: Can't resolve './vendor-chunks/zod' in '/workspace/project/gelvano/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/zod (expected /workspace/project/gelvano/.next/server/vendor-chunks/zod.js)
+<w>  at file dependencies /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file dependencies /workspace/project/gelvano/.next/server/app/_not-found/page.js
+<w>  at file /workspace/project/gelvano/.next/server/app/_not-found/page.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/swc/index.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/swc/index.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at resolve commonjs /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/workspace/project/gelvano/.next/server/vendor-chunks/react-hook-form.js'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/react-hook-form' in /workspace/project/gelvano/.next/server for build dependencies doesn't lead to expected result '/workspace/project/gelvano/.next/server/vendor-chunks/react-hook-form.js', but to 'Error: Can't resolve './vendor-chunks/react-hook-form' in '/workspace/project/gelvano/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/react-hook-form (expected /workspace/project/gelvano/.next/server/vendor-chunks/react-hook-form.js)
+<w>  at file dependencies /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file dependencies /workspace/project/gelvano/.next/server/app/(auth)/login/page.js
+<w>  at file /workspace/project/gelvano/.next/server/app/(auth)/login/page.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at resolve commonjs /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/@hookform' in /workspace/project/gelvano/.next/server for build dependencies doesn't lead to expected result '/workspace/project/gelvano/.next/server/vendor-chunks/@hookform.js', but to 'Error: Can't resolve './vendor-chunks/@hookform' in '/workspace/project/gelvano/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/@hookform (expected /workspace/project/gelvano/.next/server/vendor-chunks/@hookform.js)
+<w>  at file dependencies /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file dependencies /workspace/project/gelvano/.next/server/app/(auth)/login/page.js
+<w>  at file /workspace/project/gelvano/.next/server/app/(auth)/login/page.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at resolve commonjs /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/zod' in /workspace/project/gelvano/.next/server for build dependencies doesn't lead to expected result '/workspace/project/gelvano/.next/server/vendor-chunks/zod.js', but to 'Error: Can't resolve './vendor-chunks/zod' in '/workspace/project/gelvano/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/zod (expected /workspace/project/gelvano/.next/server/vendor-chunks/zod.js)
+<w>  at file dependencies /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file dependencies /workspace/project/gelvano/.next/server/app/(auth)/login/page.js
+<w>  at file /workspace/project/gelvano/.next/server/app/(auth)/login/page.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at resolve commonjs /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+ ✓ Compiled in 830ms (1010 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/workspace/project/gelvano/.next/server/vendor-chunks/react-hook-form.js'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/react-hook-form' in /workspace/project/gelvano/.next/server for build dependencies doesn't lead to expected result '/workspace/project/gelvano/.next/server/vendor-chunks/react-hook-form.js', but to 'Error: Can't resolve './vendor-chunks/react-hook-form' in '/workspace/project/gelvano/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/react-hook-form (expected /workspace/project/gelvano/.next/server/vendor-chunks/react-hook-form.js)
+<w>  at file dependencies /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file dependencies /workspace/project/gelvano/.next/server/app/(auth)/login/page.js
+<w>  at file /workspace/project/gelvano/.next/server/app/(auth)/login/page.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at resolve commonjs /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/@hookform' in /workspace/project/gelvano/.next/server for build dependencies doesn't lead to expected result '/workspace/project/gelvano/.next/server/vendor-chunks/@hookform.js', but to 'Error: Can't resolve './vendor-chunks/@hookform' in '/workspace/project/gelvano/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/@hookform (expected /workspace/project/gelvano/.next/server/vendor-chunks/@hookform.js)
+<w>  at file dependencies /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file dependencies /workspace/project/gelvano/.next/server/app/(auth)/login/page.js
+<w>  at file /workspace/project/gelvano/.next/server/app/(auth)/login/page.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at resolve commonjs /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/zod' in /workspace/project/gelvano/.next/server for build dependencies doesn't lead to expected result '/workspace/project/gelvano/.next/server/vendor-chunks/zod.js', but to 'Error: Can't resolve './vendor-chunks/zod' in '/workspace/project/gelvano/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/zod (expected /workspace/project/gelvano/.next/server/vendor-chunks/zod.js)
+<w>  at file dependencies /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file dependencies /workspace/project/gelvano/.next/server/app/(auth)/login/page.js
+<w>  at file /workspace/project/gelvano/.next/server/app/(auth)/login/page.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at resolve commonjs /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/clsx' in /workspace/project/gelvano/.next/server for build dependencies doesn't lead to expected result '/workspace/project/gelvano/.next/server/vendor-chunks/clsx.js', but to 'Error: Can't resolve './vendor-chunks/clsx' in '/workspace/project/gelvano/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/clsx (expected /workspace/project/gelvano/.next/server/vendor-chunks/clsx.js)
+<w>  at file dependencies /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file dependencies /workspace/project/gelvano/.next/server/app/(auth)/login/page.js
+<w>  at file /workspace/project/gelvano/.next/server/app/(auth)/login/page.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at resolve commonjs /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/lucide-react' in /workspace/project/gelvano/.next/server for build dependencies doesn't lead to expected result '/workspace/project/gelvano/.next/server/vendor-chunks/lucide-react.js', but to 'Error: Can't resolve './vendor-chunks/lucide-react' in '/workspace/project/gelvano/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/lucide-react (expected /workspace/project/gelvano/.next/server/vendor-chunks/lucide-react.js)
+<w>  at file dependencies /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file dependencies /workspace/project/gelvano/.next/server/app/(auth)/login/page.js
+<w>  at file /workspace/project/gelvano/.next/server/app/(auth)/login/page.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at resolve commonjs /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+ ✓ Compiled in 815ms (1010 modules)
+ ✓ Compiled in 675ms (1010 modules)
+ ✓ Compiled in 625ms (1010 modules)
+ ✓ Compiled in 636ms (1010 modules)
+ ✓ Compiled in 261ms (606 modules)
+ ✓ Compiled /_not-found in 222ms (1013 modules)
+ GET /_next/static/css/app/layout.css?v=1781679756964 404 in 333ms
+ ✓ Compiled in 272ms (608 modules)
+ GET /_next/static/css/app/layout.css?v=1781679762322 404 in 16ms
+ ✓ Compiled in 265ms (608 modules)
+ GET /_next/static/css/app/layout.css?v=1781679768774 404 in 19ms
+ ✓ Compiled in 399ms (608 modules)
+ GET /_next/static/css/app/layout.css?v=1781679787694 404 in 35ms
+ ✓ Compiled in 314ms (608 modules)
+ GET /_next/static/css/app/layout.css?v=1781679812936 404 in 22ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/workspace/project/gelvano/.next/server/vendor-chunks'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/react-hook-form' in /workspace/project/gelvano/.next/server for build dependencies doesn't lead to expected result '/workspace/project/gelvano/.next/server/vendor-chunks/react-hook-form.js', but to 'Error: Can't resolve './vendor-chunks/react-hook-form' in '/workspace/project/gelvano/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/react-hook-form (expected /workspace/project/gelvano/.next/server/vendor-chunks/react-hook-form.js)
+<w>  at file dependencies /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file dependencies /workspace/project/gelvano/.next/server/app/_not-found/page.js
+<w>  at file /workspace/project/gelvano/.next/server/app/_not-found/page.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at resolve commonjs /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/@hookform' in /workspace/project/gelvano/.next/server for build dependencies doesn't lead to expected result '/workspace/project/gelvano/.next/server/vendor-chunks/@hookform.js', but to 'Error: Can't resolve './vendor-chunks/@hookform' in '/workspace/project/gelvano/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/@hookform (expected /workspace/project/gelvano/.next/server/vendor-chunks/@hookform.js)
+<w>  at file dependencies /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file /workspace/project/gelvano/.next/server/webpack-runtime.js
+<w>  at file dependencies /workspace/project/gelvano/.next/server/app/_not-found/page.js
+<w>  at file /workspace/project/gelvano/.next/server/app/_not-found/page.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/require.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at resolve commonjs /workspace/project/gelvano/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+ ✓ Compiled in 373ms (608 modules)
+ GET /_next/static/css/app/layout.css?v=1781679832946 404 in 25ms
+ ✓ Compiled in 269ms (608 modules)
+ GET /_next/static/css/app/layout.css?v=1781679858596 404 in 18ms
+ ✓ Compiled in 279ms (608 modules)
+ GET /_next/static/css/app/layout.css?v=1781679894365 404 in 38ms
+ ✓ Compiled in 453ms (608 modules)
+ GET /_next/static/css/app/layout.css?v=1781679912932 404 in 30ms
