@@ -19,6 +19,17 @@ import {
   Ticket,
   ChevronLeft,
   ChevronRight,
+  Wallet,
+  Gift,
+  FileBadge,
+  Brain,
+  Calendar,
+  BarChart,
+  Database,
+  Settings2,
+  Award,
+  Home,
+  Play,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -27,14 +38,22 @@ interface SidebarProps {
 }
 
 const studentLinks = [
-  { href: '/dashboard', label: 'الرئيسية', icon: LayoutDashboard },
+  { href: '/dashboard', label: 'الرئيسية', icon: Home },
   { href: '/courses', label: 'الدورات', icon: BookOpen },
   { href: '/exams', label: 'الاختبارات', icon: FileText },
+  { href: '/assignments', label: 'الواجبات', icon: FileBadge },
+  { href: '/study-plan', label: 'خطة الدراسة', icon: Calendar },
+  { href: '/wallet', label: 'المحفظة', icon: Wallet },
+  { href: '/forum', label: 'المنتدى', icon: MessageSquare },
+  { href: '/ai-tutor', label: 'menzo-ai', icon: Brain },
+  { href: '/leaderboard', label: 'التصنيف', icon: Trophy },
+  { href: '/certificates', label: 'الشهادات', icon: Award },
+  { href: '/achievements', label: 'الإنجازات', icon: Play },
   { href: '/messages', label: 'الرسائل', icon: MessageSquare },
   { href: '/notifications', label: 'الإشعارات', icon: Bell },
   { href: '/subscriptions', label: 'الاشتراكات', icon: CreditCard },
-  { href: '/leaderboard', label: 'التصنيف', icon: Trophy },
   { href: '/profile', label: 'الملف الشخصي', icon: User },
+  { href: '/settings', label: 'الإعدادات', icon: Settings },
 ]
 
 const adminLinks = [
@@ -43,11 +62,17 @@ const adminLinks = [
   { href: '/admin/courses', label: 'الدورات', icon: BookOpen },
   { href: '/admin/lectures', label: 'المحاضرات', icon: GraduationCap },
   { href: '/admin/exams', label: 'الاختبارات', icon: FileText },
+  { href: '/admin/homework', label: 'الواجبات', icon: FileBadge },
+  { href: '/admin/grades', label: 'الدرجات', icon: BarChart },
+  { href: '/admin/wallet', label: 'المحفظة', icon: Wallet },
+  { href: '/admin/coupons', label: 'الأكواد', icon: Gift },
+  { href: '/admin/forum', label: 'المنتدى', icon: MessageSquare },
   { href: '/admin/tickets', label: 'التذاكر', icon: Ticket },
   { href: '/admin/messages', label: 'الرسائل', icon: MessageSquare },
   { href: '/admin/analytics', label: 'التحليلات', icon: BarChart3 },
-  { href: '/admin/admins', label: 'المديرين', icon: Users },
-  { href: '/admin/settings', label: 'الإعدادات', icon: Settings },
+  { href: '/admin/ai-settings', label: 'إعدادات AI', icon: Brain },
+  { href: '/admin/data', label: 'البيانات', icon: Database },
+  { href: '/admin/settings', label: 'الإعدادات', icon: Settings2 },
 ]
 
 export default function Sidebar({ role }: SidebarProps) {
