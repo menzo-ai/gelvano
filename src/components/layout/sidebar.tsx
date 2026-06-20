@@ -32,6 +32,7 @@ import {
   Award,
   Home,
   Play,
+  FileQuestion,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -48,6 +49,7 @@ const studentLinks = [
   { href: '/wallet', label: 'المحفظة', icon: Wallet },
   { href: '/forum', label: 'المنتدى', icon: MessageSquare },
   { href: '/ai-tutor', label: 'menzo-ai', icon: Brain },
+  { href: '/ai-tests', label: 'اختبارات AI', icon: FileQuestion },
   { href: '/leaderboard', label: 'التصنيف', icon: Trophy },
   { href: '/certificates', label: 'الشهادات', icon: Award },
   { href: '/achievements', label: 'الإنجازات', icon: Play },

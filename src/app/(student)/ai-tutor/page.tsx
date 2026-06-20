@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import Card, { CardContent } from '@/components/ui/card'
 import Button from '@/components/ui/button'
 import Badge from '@/components/ui/badge'
@@ -25,8 +25,32 @@ import {
   Trash2,
   RefreshCw,
   Eye,
-  ZoomIn
+  ZoomIn,
+  Mic,
+  MicOff,
+  Square,
+  Sparkle,
+  History,
+  Pencil,
+  Check,
+  Trash,
+  ChevronRight,
+  MoreVertical,
+  Edit3,
+  Wand2,
+  RotateCcw,
+  Volume2,
+  Pause,
+  Play
 } from 'lucide-react'
+
+interface Conversation {
+  id: string
+  title: string
+  messages: Message[]
+  createdAt: Date
+  updatedAt: Date
+}
 
 interface Message {
   id: string
@@ -44,22 +68,123 @@ interface Attachment {
   ocrText?: string
 }
 
-const quickQuestions = [
-  { icon: Atom, text: 'ما هي قوانين نيوتن للحركة؟' },
-  { icon: Calculator, text: 'احسب تسارع جسم كتلته 10kg تؤثر عليه قوة 50N' },
-  { icon: Lightbulb, text: 'اشرح ظاهرة انكسار الضوء' },
-  { icon: BookOpen, text: 'ما الفرق بين الشغل والطاقة؟' }
+interface Suggestion {
+  id: string
+  text: string
+  icon: typeof Atom
+}
+
+const quickQuestions: Suggestion[] = [
+  { id: '1', text: 'ما هي قوانين نيوتن للحركة؟', icon: Atom },
+  { id: '2', text: 'احسب تسارع جسم كتلته 10kg تؤثر عليه قوة 50N', icon: Calculator },
+  { id: '3', text: 'اشرح ظاهرة انكسار الضوء', icon: Lightbulb },
+  { id: '4', text: 'ما الفرق بين الشغل والطاقة؟', icon: BookOpen },
 ]
 
 const API_KEY = 'sk-ws-H.IEXIRX.xZzz.MEUCIAuCHhQGRQI9u1slDWDIOqggbcUHIpbD1TfqRXamk_2bAiEAiTOjCDkdvfPV6oX3Q98gwTE9yi1e6B27xpUSAUkh1U8'
 const API_HOST = 'https://ws-2yatkvgy5gz29uxu.ap-southeast-1.maas.aliyuncs.com'
 
 export default function AITutorPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: `مرحباً! أنا **menzo-ai** 👋
+  const [messages, setMessages] = useState<Message[]>([])
+  const [inputValue, setInputValue] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+  const [isThinking, setIsThinking] = useState(false)
+  const [isSending, setIsSending] = useState(false)
+  const [statusBadge, setStatusBadge] = useState<'idle' | 'thinking' | 'sending' | 'streaming'>('idle')
+  
+  const [attachments, setAttachments] = useState<Attachment[]>([])
+  const [uploading, setUploading] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  
+  const [isRecording, setIsRecording] = useState(false)
+  const [isSpeechSupported, setIsSpeechSupported] = useState(false)
+  const [isSpeaking, setIsSpeaking] = useState(false)
+  const recognitionRef = useRef<any>(null)
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
+  
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
+  const [showHistory, setShowHistory] = useState(false)
+  const [editingConversationId, setEditingConversationId] = useState<string | null>(null)
+  const [editingTitle, setEditingTitle] = useState('')
+  
+  const [useDeepThinking, setUseDeepThinking] = useState(false)
+  const [showSuggestions, setShowSuggestions] = useState(true)
+  
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
+  const [editingContent, setEditingContent] = useState('')
+  
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
+
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (SpeechRecognition) {
+      setIsSpeechSupported(true)
+      recognitionRef.current = new SpeechRecognition()
+      recognitionRef.current.continuous = true
+      recognitionRef.current.interimResults = true
+      recognitionRef.current.lang = 'ar-SA'
+      
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = Array.from(event.results)
+          .map((result: any) => result[0].transcript)
+          .join('')
+        setInputValue(transcript)
+      }
+      
+      recognitionRef.current.onerror = () => { setIsRecording(false) }
+      recognitionRef.current.onend = () => { setIsRecording(false) }
+    }
+  }, [])
+
+  useEffect(() => {
+    const saved = localStorage.getItem('ai-conversations')
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        setConversations(parsed.map((c: any) => ({
+          ...c,
+          createdAt: new Date(c.createdAt),
+          updatedAt: new Date(c.updatedAt),
+          messages: c.messages.map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) }))
+        })))
+      } catch (e) { console.error('Error loading conversations:', e) }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (conversations.length > 0) {
+      localStorage.setItem('ai-conversations', JSON.stringify(conversations))
+    }
+  }, [conversations])
+
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [])
+
+  useEffect(() => { scrollToBottom() }, [messages, scrollToBottom])
+
+  useEffect(() => {
+    if (conversations.length === 0) {
+      createNewConversation()
+    } else if (!currentConversationId) {
+      const lastConversation = conversations[conversations.length - 1]
+      setCurrentConversationId(lastConversation.id)
+      setMessages(lastConversation.messages)
+    }
+  }, [])
+
+  const createNewConversation = useCallback(() => {
+    const newConversation: Conversation = {
+      id: Date.now().toString(),
+      title: 'محادثة جديدة',
+      messages: [{
+        id: '1',
+        role: 'assistant',
+        content: `مرحباً! أنا **menzo-ai** 👋
 
 المساعد الذكي المتخصص في الفيزياء 🌟
 
@@ -69,7 +194,7 @@ export default function AITutorPage() {
 🔢 حل المسائل الرياضية خطوة بخطوة
 📝 شرح النظريات والقوانين بالصيغ الرياضية
 📸 قراءة النصوص من الصور (OCR) - حتى بخط اليد!
-📄 تحليل الملفات المرفوعة
+📄 تحليل الملفات المرفقة
 💡 نصائح للاختبارات
 
 **كيف تستخدميني:**
@@ -78,24 +203,87 @@ export default function AITutorPage() {
 3. سأساعدك على فهم الفيزياء بسهولة
 
 ابدأ الآن! 🚀`,
-      timestamp: new Date()
+        timestamp: new Date()
+      }],
+      createdAt: new Date(),
+      updatedAt: new Date()
     }
-  ])
-  const [inputValue, setInputValue] = useState('')
-  const [isTyping, setIsTyping] = useState(false)
-  const [attachments, setAttachments] = useState<Attachment[]>([])
-  const [uploading, setUploading] = useState(false)
-  const [selectedImage, setSelectedImage] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+    setConversations(prev => [...prev, newConversation])
+    setCurrentConversationId(newConversation.id)
+    setMessages(newConversation.messages)
+    setShowHistory(false)
+    setShowSuggestions(true)
+  }, [])
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+  const selectConversation = useCallback((id: string) => {
+    const conversation = conversations.find(c => c.id === id)
+    if (conversation) {
+      setCurrentConversationId(id)
+      setMessages(conversation.messages)
+      setShowHistory(false)
+      setShowSuggestions(conversation.messages.length <= 1)
+    }
+  }, [conversations])
 
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+  const deleteConversation = useCallback((id: string) => {
+    if (confirm('هل تريد حذف هذه المحادثة؟')) {
+      setConversations(prev => prev.filter(c => c.id !== id))
+      if (currentConversationId === id) {
+        if (conversations.length > 1) {
+          const nextConversation = conversations.find(c => c.id !== id)
+          if (nextConversation) selectConversation(nextConversation.id)
+        } else { createNewConversation() }
+      }
+    }
+  }, [currentConversationId, conversations, selectConversation, createNewConversation])
+
+  const startEditingTitle = useCallback((id: string, currentTitle: string) => {
+    setEditingConversationId(id)
+    setEditingTitle(currentTitle)
+  }, [])
+
+  const saveTitle = useCallback(() => {
+    if (editingConversationId && editingTitle.trim()) {
+      setConversations(prev => prev.map(c => 
+        c.id === editingConversationId ? { ...c, title: editingTitle.trim(), updatedAt: new Date() } : c
+      ))
+      setEditingConversationId(null)
+      setEditingTitle('')
+    }
+  }, [editingConversationId, editingTitle])
+
+  const toggleRecording = useCallback(() => {
+    if (!recognitionRef.current) return
+    if (isRecording) {
+      recognitionRef.current.stop()
+      setIsRecording(false)
+    } else {
+      try { recognitionRef.current.start(); setIsRecording(true) } catch (e) { console.error('Speech recognition error:', e) }
+    }
+  }, [isRecording])
+
+  const speakText = useCallback((text: string) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel()
+      const utterance = new SpeechSynthesisUtterance(text)
+      utterance.lang = 'ar-SA'
+      utterance.rate = 1
+      utterance.pitch = 1
+      utteranceRef.current = utterance
+      setIsSpeaking(true)
+      utterance.onend = () => setIsSpeaking(false)
+      utterance.onerror = () => setIsSpeaking(false)
+      window.speechSynthesis.speak(utterance)
+    }
+  }, [])
+
+  const stopSpeaking = useCallback(() => {
+    if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); setIsSpeaking(false) }
+  }, [])
+
+  const stopGeneration = useCallback(() => {
+    if (abortControllerRef.current) { abortControllerRef.current.abort(); setIsTyping(false); setIsThinking(false); setIsSending(false); setStatusBadge('idle') }
+  }, [])
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files

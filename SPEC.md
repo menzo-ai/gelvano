@@ -846,8 +846,52 @@ model TicketMessage {
 - [ ] Performance optimization
 
 ### Phase 5: Advanced
-- [ ] AI chatbot
+- [x] AI chatbot (menzo-ai) - Voice input, deep thinking, conversation history
+- [x] AI Tests - Generate quizzes with AI
 - [ ] Leaderboard
 - [ ] Certificates
 - [ ] Analytics dashboard
 - [ ] Payment integration
+
+### AI Features
+
+#### AI Tutor (menzo-ai) - `/ai-tutor`
+- Voice input (microphone button)
+- Stop generation button
+- Deep thinking mode (for supported models)
+- Status badges (thinking..., sending..., response...)
+- Conversation history sidebar
+- Edit conversation title
+- Delete conversation
+- Copy message
+- Edit message
+- Regenerate response
+- Text-to-speech for AI responses
+- Quick suggestions
+
+#### AI Tests - `/ai-tests`
+- Subject selection (Physics, Math, Arabic, English, Chemistry, Biology)
+- Description (optional)
+- Question count (5, 10, 20, 50, custom up to 100)
+- Difficulty level (All, Easy, Medium, Hard)
+- Time limit (5, 10, 15, 30, 60 minutes)
+- AI-generated questions
+- Question navigation
+- Timer with pause
+- Answer review
+
+#### Admin AI Settings - `/admin/ai-settings`
+- API validation before enabling
+- API health check
+- AI enable/disable toggle
+- AI Tests enable/disable toggle
+- Custom system prompt
+- Custom test prompt
+- Temperature settings
+- Model selection (Alibaba, OpenAI, Anthropic, Gemini)
+
+#### Daily Health Check
+- Cron job at 12:00 PM daily
+- API health check
+- Admin notification on failure
+- Vercel Cron integration
