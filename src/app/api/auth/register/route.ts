@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { PrismaClient } from '@prisma/client'
 import { registerSchema } from '@/lib/validations'
+import bcrypt from 'bcryptjs'
+import { getSiteConfig } from '@/lib/site-config'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!
-
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+const prisma = new PrismaClient()
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,73 +20,73 @@ export async function POST(request: NextRequest) {
 
     const { name, email, password } = body
 
-    // Check if user already exists in Supabase Auth
-    const { data: existingAuth } = await supabaseAdmin.auth.admin.listUsers()
-    const userExists = existingAuth?.users.some(u => u.email === email)
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email }
+    })
 
-    if (userExists) {
+    if (existingUser) {
       return NextResponse.json(
-        { error: 'Email already registered' },
+        { error: 'هذا البريد الإلكتروني مسجل بالفعل' },
         { status: 400 }
       )
     }
 
     // Check if this is the first registration (becomes admin)
-    const { count } = await supabaseAdmin
-      .from('users')
-      .select('*', { count: 'exact', head: true })
-    
-    const isFirstUser = (count || 0) === 0
+    const userCount = await prisma.user.count()
+    const isFirstUser = userCount === 0
     const role = isFirstUser ? 'SUPER_ADMIN' : 'STUDENT'
 
-    // Create user with Supabase Auth (sends confirmation email)
-    const { data, error } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: isFirstUser, // Auto-confirm first admin
-      user_metadata: {
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12)
+
+    // Create user
+    const user = await prisma.user.create({
+      data: {
         name,
+        email,
+        password: hashedPassword,
         role,
-        is_verified: isFirstUser
+        isVerified: isFirstUser, // Auto-verify first admin
+        schoolYear: 1
       }
     })
 
-    if (error) {
-      console.error('Supabase error:', error)
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      )
-    }
+    // Check if email is enabled and send verification if needed
+    const siteConfig = await getSiteConfig()
+    let requiresVerification = false
 
-    // If not first user (student), send confirmation email
-    if (!isFirstUser && data.user) {
-      // Also create user record in our users table
-      await supabaseAdmin
-        .from('users')
-        .insert({
-          id: data.user.id,
-          name,
-          email,
-          role,
-          is_verified: false,
-          school_year: 1
-        })
+    if (!isFirstUser && siteConfig.emailEnabled) {
+      // Generate OTP
+      const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
+      const otpExpiry = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          otpCode,
+          otpExpiry
+        }
+      })
+
+      requiresVerification = true
     }
 
     return NextResponse.json({
       message: isFirstUser
-        ? 'Account created successfully!'
-        : 'Account created! Please verify your email via the link sent to your inbox.',
-      userId: data.user?.id,
-      requiresVerification: !isFirstUser,
+        ? 'تم إنشاء حسابك بنجاح!'
+        : requiresVerification
+          ? 'تم إنشاء حسابك! يرجى التحقق من بريدك الإلكتروني.'
+          : 'تم إنشاء حسابك بنجاح!',
+      userId: user.id,
+      requiresVerification,
       email,
       isAdmin: isFirstUser
     })
   } catch (error: any) {
     console.error('Registration error:', error)
     return NextResponse.json(
-      { error: error.message || 'Registration failed' },
+      { error: error.message || 'فشل التسجيل' },
       { status: 500 }
     )
   }
@@ -95,22 +94,20 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const { count } = await supabaseAdmin
-      .from('users')
-      .select('*', { count: 'exact', head: true })
-    
-    const canRegister = (count || 0) === 0
+    const userCount = await prisma.user.count()
+    const canRegister = userCount === 0
     
     return NextResponse.json({
       canRegister,
       message: canRegister
-        ? 'First account - will be admin'
-        : 'Students can register'
+        ? 'أول حساب - سيتم تعيينه كمدير'
+        : 'يمكن للطلاب التسجيل'
     })
-  } catch {
+  } catch (error) {
+    console.error('Check registration error:', error)
     return NextResponse.json({
       canRegister: true,
-      message: 'System ready for registration'
+      message: 'النظام جاهز للتسجيل'
     })
   }
 }

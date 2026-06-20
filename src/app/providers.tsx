@@ -38,6 +38,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   const [theme, setTheme] = useState<Theme>('dark')
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark')
+  const [mounted, setMounted] = useState(false)
 
   // Initialize theme from localStorage
   useEffect(() => {
@@ -45,6 +46,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     if (stored) {
       setTheme(stored)
     }
+    setMounted(true)
   }, [])
 
   // Resolve theme
@@ -55,15 +57,19 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     setResolvedTheme(resolved)
     
     // Apply to document
-    document.documentElement.classList.remove('light', 'dark')
-    document.documentElement.classList.add(resolved)
+    if (mounted) {
+      document.documentElement.classList.remove('light', 'dark')
+      document.documentElement.classList.add(resolved)
+    }
     
     // Save to localStorage
     localStorage.setItem('gelvano-theme', theme)
-  }, [theme])
+  }, [theme, mounted])
 
   // Listen for system theme changes
   useEffect(() => {
+    if (!mounted) return
+    
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handleChange = () => {
       if (theme === 'system') {
@@ -75,10 +81,17 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     }
     mediaQuery.addEventListener('change', handleChange)
     return () => mediaQuery.removeEventListener('change', handleChange)
-  }, [theme])
+  }, [theme, mounted])
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark')
+    setTheme(prev => prev === 'dark' ? 'light' : prev === 'light' ? 'system' : 'dark')
+  }
+
+  // Prevent flash of wrong theme
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-background-dark" />
+    )
   }
 
   return (

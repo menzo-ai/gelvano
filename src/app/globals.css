@@ -6,7 +6,7 @@
 
 @layer base {
   * {
-    @apply border-slate-700;
+    @apply border-slate-200 dark:border-slate-700;
   }
 
   html {
@@ -14,11 +14,31 @@
   }
 
   body {
-    @apply bg-background-dark text-slate-100 font-cairo antialiased;
+    @apply bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-cairo antialiased transition-colors;
+  }
+
+  /* Light mode styles */
+  .light {
+    --tw-bg-opacity: 1;
+    background-color: rgb(248 250 252 / var(--tw-bg-opacity));
+  }
+
+  .light .card {
+    @apply bg-white border-slate-200;
+  }
+
+  .light .input {
+    @apply bg-white border-slate-300 text-slate-900;
+  }
+
+  /* Dark mode styles (default) */
+  .dark {
+    --tw-bg-opacity: 1;
+    background-color: rgb(15 23 42 / var(--tw-bg-opacity));
   }
 
   ::selection {
-    @apply bg-primary/30 text-white;
+    @apply bg-primary/30 text-white dark:text-white;
   }
 
   ::-webkit-scrollbar {
@@ -26,15 +46,15 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-slate-800;
+    @apply bg-slate-200 dark:bg-slate-800;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-slate-600 rounded-full;
+    @apply bg-slate-400 dark:bg-slate-600 rounded-full;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-500;
+    @apply bg-slate-500 dark:bg-slate-500;
   }
 }
 
