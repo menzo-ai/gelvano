@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Card, { CardHeader, CardContent } from '@/components/ui/card'
 import Button from '@/components/ui/button'
 import Badge from '@/components/ui/badge'
@@ -21,7 +21,8 @@ import {
   AlertCircle,
   Send,
   Bot,
-  Code
+  Code,
+  Loader2
 } from 'lucide-react'
 
 const defaultSystemPrompt = `أنت مساعد تعليمي متخصص في الفيزياء للمرحلة الثانوية المصرية.
@@ -38,38 +39,138 @@ const defaultSystemPrompt = `أنت مساعد تعليمي متخصص في ال
 
 export default function AdminAISettingsPage() {
   const [systemPrompt, setSystemPrompt] = useState(defaultSystemPrompt)
-  const [apiEndpoint, setApiEndpoint] = useState('https://ws-2yatkvgy5gz29uxu.ap-southeast-1.maas.aliyuncs.com')
-  const [apiKey, setApiKey] = useState('sk-ws-H.IEXIRX.xZzz.MEUCIAuCHhQGRQI9u1slDWDIOqggbcUHIpbD1TfqRXamk_2bAiEAiTOjCDkdvfPV6oX3Q98gwTE9yi1e6B27xpUSAUkh1U8')
+  const [apiEndpoint, setApiEndpoint] = useState('')
+  const [apiKey, setApiKey] = useState('')
   const [temperature, setTemperature] = useState(0.7)
   const [maxTokens, setMaxTokens] = useState(2000)
   const [isEnabled, setIsEnabled] = useState(true)
   const [testing, setTesting] = useState(false)
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    loadSettings()
+  }, [])
+
+  const loadSettings = async () => {
+    try {
+      const response = await fetch('/api/admin/settings/ai')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.config) {
+          setApiEndpoint(data.config.apiEndpoint || '')
+          setApiKey(data.config.apiKey || '')
+          setTemperature(data.config.temperature || 0.7)
+          setMaxTokens(data.config.maxTokens || 2000)
+          setSystemPrompt(data.config.systemPrompt || defaultSystemPrompt)
+          setIsEnabled(data.enabled !== false)
+        }
+      }
+    } catch (error) {
+      console.error('Error loading AI settings:', error)
+    }
+  }
+
+  const validateSettings = (): boolean => {
+    const newErrors: Record<string, string> = {}
+
+    if (!apiEndpoint.trim()) {
+      newErrors.apiEndpoint = 'رابط API مطلوب'
+    } else if (!isValidUrl(apiEndpoint)) {
+      newErrors.apiEndpoint = 'يرجى إدخال رابط صالح'
+    }
+
+    if (!apiKey.trim()) {
+      newErrors.apiKey = 'مفتاح API مطلوب'
+    }
+
+    if (maxTokens < 100 || maxTokens > 8000) {
+      newErrors.maxTokens = 'يجب أن يكون بين 100 و 8000'
+    }
+
+    if (!systemPrompt.trim()) {
+      newErrors.systemPrompt = 'System Prompt مطلوب'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const isValidUrl = (string: string): boolean => {
+    try {
+      new URL(string)
+      return true
+    } catch (_) {
+      return string.startsWith('http://') || string.startsWith('https://')
+    }
+  }
 
   const handleTestAPI = async () => {
+    if (!validateSettings()) {
+      setTestResult({ success: false, message: 'يرجى تصحيح الأخطاء أولاً' })
+      return
+    }
+
     setTesting(true)
     setTestResult(null)
-    
-    // Simulate API test
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    setTestResult({
-      success: true,
-      message: 'API متصل بنجاح! menzo-ai يعمل بشكل طبيعي.'
-    })
-    
+
+    try {
+      const response = await fetch('/api/admin/ai/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiEndpoint, apiKey })
+      })
+      const result = await response.json()
+      setTestResult(result)
+    } catch (error) {
+      setTestResult({ success: false, message: `خطأ في الاتصال: ${error}` })
+    }
+
     setTesting(false)
   }
 
-  const handleSave = () => {
-    alert('تم حفظ إعدادات menzo-ai بنجاح!')
+  const handleSave = async () => {
+    if (!validateSettings()) {
+      return
+    }
+
+    setIsSaving(true)
+    try {
+      const response = await fetch('/api/admin/settings/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          enabled: isEnabled,
+          config: {
+            apiEndpoint,
+            apiKey,
+            temperature,
+            maxTokens,
+            systemPrompt
+          }
+        })
+      })
+
+      if (response.ok) {
+        setTestResult({ success: true, message: 'تم حفظ الإعدادات بنجاح!' })
+      } else {
+        setTestResult({ success: false, message: 'فشل في الحفظ' })
+      }
+    } catch (error) {
+      setTestResult({ success: false, message: `خطأ: ${error}` })
+    }
+    setIsSaving(false)
   }
 
   const handleReset = () => {
     if (confirm('هل تريد إعادة تعيين الإعدادات الافتراضية؟')) {
       setSystemPrompt(defaultSystemPrompt)
+      setApiEndpoint('')
+      setApiKey('')
       setTemperature(0.7)
       setMaxTokens(2000)
+      setErrors({})
     }
   }
 
@@ -141,15 +242,17 @@ export default function AdminAISettingsPage() {
           <Input 
             label="API Endpoint" 
             value={apiEndpoint} 
-            onChange={(e) => setApiEndpoint(e.target.value)}
+            onChange={(e) => { setApiEndpoint(e.target.value); setErrors(prev => ({ ...prev, apiEndpoint: '' })) }}
             placeholder="https://api.example.com/v1/chat"
+            error={errors.apiEndpoint}
           />
           <Input 
             label="API Key" 
             type="password"
             value={apiKey} 
-            onChange={(e) => setApiKey(e.target.value)}
+            onChange={(e) => { setApiKey(e.target.value); setErrors(prev => ({ ...prev, apiKey: '' })) }}
             placeholder="sk-..."
+            error={errors.apiKey}
           />
           
           <div className="flex gap-3">
@@ -244,10 +347,11 @@ export default function AdminAISettingsPage() {
         <CardContent className="space-y-4">
           <Textarea 
             value={systemPrompt}
-            onChange={(e) => setSystemPrompt(e.target.value)}
+            onChange={(e) => { setSystemPrompt(e.target.value); setErrors(prev => ({ ...prev, systemPrompt: '' })) }}
             rows={12}
             className="font-mono text-sm"
             placeholder="أدخل System Prompt هنا..."
+            error={errors.systemPrompt}
           />
           <div className="p-4 bg-slate-800/50 rounded-lg">
             <h4 className="font-medium mb-2 flex items-center gap-2">

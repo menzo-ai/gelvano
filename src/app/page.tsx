@@ -1,16 +1,49 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { GraduationCap, BookOpen, FileText, Video, Users, Brain, ChevronLeft, Play, CheckCircle, Youtube, Facebook, MessageCircle, Star, Trophy, Zap, Shield, Headphones, Award } from 'lucide-react'
+import { GraduationCap, BookOpen, FileText, Video, Users, Brain, ChevronLeft, Play, CheckCircle, Youtube, Facebook, MessageCircle, Star, Trophy, Zap, Shield, Headphones, Award, Loader2 } from 'lucide-react'
 import Button from '@/components/ui/button'
+import DatabaseSetup from '@/components/DatabaseSetup'
+
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="text-center">
+        <Loader2 className="w-12 h-12 mx-auto mb-4 text-primary animate-spin" />
+        <p className="text-slate-400">جاري التحميل...</p>
+      </div>
+    </div>
+  )
+}
 
 export default function HomePage() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <HomeContent />
+    </Suspense>
+  )
+}
+
+function HomeContent() {
   const router = useRouter()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [needsDbSetup, setNeedsDbSetup] = useState<boolean | null>(null)
 
   useEffect(() => {
+    // Check if database is configured
+    const checkDbStatus = async () => {
+      try {
+        const response = await fetch('/api/admin/database/status')
+        const data = await response.json()
+        setNeedsDbSetup(data.needsSetup)
+      } catch {
+        setNeedsDbSetup(true)
+      }
+    }
+    checkDbStatus()
+
     const user = localStorage.getItem('user')
     if (user) {
       setIsLoggedIn(true)
@@ -23,6 +56,11 @@ export default function HomePage() {
     } else {
       router.push('/register')
     }
+  }
+
+  // Show database setup if needed
+  if (needsDbSetup === true) {
+    return <DatabaseSetup />
   }
 
   return (

@@ -6,10 +6,11 @@ import { cn } from '@/lib/utils'
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
   error?: string
+  helperText?: string
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, type = 'text', ...props }, ref) => {
+  ({ className, label, error, helperText, type = 'text', ...props }, ref) => {
     return (
       <div className="w-full">
         {label && (
@@ -24,6 +25,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           {...props}
         />
         {error && <p className="error-text">{error}</p>}
+        {helperText && !error && <p className="text-xs text-slate-500 mt-1">{helperText}</p>}
       </div>
     )
   }
