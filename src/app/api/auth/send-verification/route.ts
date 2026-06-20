@@ -1,44 +1,62 @@
-import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { NextRequest, NextResponse } from 'next/server'
+import prisma from '@/lib/prisma'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!
-
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
-
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const { email } = await request.json()
 
     if (!email) {
       return NextResponse.json(
-        { success: false, error: 'Email is required' },
+        { success: false, error: 'البريد الإلكتروني مطلوب' },
         { status: 400 }
       )
     }
 
-    // Send magic link for email verification
-    const { error } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'magiclink',
-      email,
+    const user = await prisma.user.findUnique({
+      where: { email }
     })
 
-    if (error) {
-      console.error('Send verification error:', error)
-      return NextResponse.json(
-        { success: false, error: error.message },
-        { status: 400 }
-      )
+    if (!user) {
+      // Don't reveal if user exists
+      return NextResponse.json({
+        success: true,
+        message: 'إذا كان البريد الإلكتروني مسجلاً، ستصلك رسالة تفعيل'
+      })
     }
+
+    if (user.isVerified) {
+      return NextResponse.json({
+        success: true,
+        message: 'الحساب مفعل مسبقاً'
+      })
+    }
+
+    // Generate verification token
+    const crypto = await import('crypto')
+    const verificationToken = crypto.randomBytes(32).toString('hex')
+    const expiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        resetToken: verificationToken,
+        resetExpiry: expiry
+      }
+    })
+
+    // In production, send email with verification link
+    console.log(`Verification token for ${email}: ${verificationToken}`)
 
     return NextResponse.json({
       success: true,
-      message: 'Verification link sent successfully'
+      message: 'تم إرسال رابط التفعيل',
+      // Remove this in production
+      verificationToken: process.env.NODE_ENV === 'development' ? verificationToken : undefined
     })
   } catch (error: any) {
     console.error('Send verification error:', error)
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to send verification' },
+      { success: false, error: error.message || 'فشل في إرسال رابط التفعيل' },
       { status: 500 }
     )
   }

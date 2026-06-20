@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+import prisma from '@/lib/prisma'
+import { compare } from 'bcryptjs'
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,37 +8,63 @@ export async function POST(request: NextRequest) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { success: false, error: 'Email and password are required' },
+        { success: false, error: 'البريد الإلكتروني وكلمة المرور مطلوبان' },
         { status: 400 }
       )
     }
 
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
+    // Find user by email
+    const user = await prisma.user.findUnique({
+      where: { email }
     })
 
-    if (error) {
+    if (!user) {
       return NextResponse.json(
-        { success: false, error: error.message },
+        { success: false, error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' },
         { status: 401 }
       )
     }
 
+    if (!user.isActive) {
+      return NextResponse.json(
+        { success: false, error: 'حسابك غير نشط، يرجى التواصل مع الإدارة' },
+        { status: 401 }
+      )
+    }
+
+    // Verify password
+    const isPasswordValid = await compare(password, user.password)
+
+    if (!isPasswordValid) {
+      return NextResponse.json(
+        { success: false, error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' },
+        { status: 401 }
+      )
+    }
+
+    // Log activity
+    await prisma.activityLog.create({
+      data: {
+        userId: user.id,
+        action: 'LOGIN',
+        details: JSON.stringify({ method: 'email' })
+      }
+    })
+
     return NextResponse.json({
       success: true,
       user: {
-        id: data.user?.id,
-        email: data.user?.email,
-        name: data.user?.user_metadata?.name,
-        role: data.user?.user_metadata?.role
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        isVerified: user.isVerified
       }
     })
   } catch (error: any) {
+    console.error('Login error:', error)
     return NextResponse.json(
-      { success: false, error: error.message || 'Login failed' },
+      { success: false, error: error.message || 'فشل في تسجيل الدخول' },
       { status: 500 }
     )
   }

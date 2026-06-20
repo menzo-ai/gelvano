@@ -1,32 +1,48 @@
-import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { NextRequest, NextResponse } from 'next/server'
+import prisma from '@/lib/prisma'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+export const dynamic = 'force-dynamic'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const tokenHash = searchParams.get('token_hash')
-    const type = searchParams.get('type')
-    const email = searchParams.get('email') || ''
+    const token = searchParams.get('token')
 
-    if (!tokenHash) {
+    if (!token) {
       return NextResponse.redirect(new URL('/verify-email?error=invalid', request.url))
     }
 
-    // Verify using Supabase client-side auth
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
-    const { error } = await supabase.auth.verifyOtp({
-      type: 'email',
-      email,
-      token: tokenHash
+    // Find user with this verification token
+    const user = await prisma.user.findFirst({
+      where: {
+        resetToken: token,
+        resetExpiry: {
+          gt: new Date()
+        }
+      }
     })
 
-    if (error) {
-      console.error('Verify error:', error)
+    if (!user) {
       return NextResponse.redirect(new URL('/verify-email?error=invalid', request.url))
     }
+
+    // Verify the user
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isVerified: true,
+        resetToken: null,
+        resetExpiry: null
+      }
+    })
+
+    // Log activity
+    await prisma.activityLog.create({
+      data: {
+        userId: user.id,
+        action: 'VERIFY_EMAIL'
+      }
+    })
 
     return NextResponse.redirect(new URL('/verify-email?success=true', request.url))
   } catch (error: any) {
