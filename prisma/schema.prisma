@@ -19,8 +19,12 @@ model User {
   parentPhone   String?
   avatar        String?
   schoolYear    Int?
+  isAzhar       Boolean   @default(false)
   isVerified    Boolean   @default(false)
   isActive      Boolean   @default(true)
+  isForumBanned Boolean  @default(false)
+  isCommentBanned Boolean @default(false)
+  isAccountBanned Boolean @default(false)
   otpCode       String?
   otpExpiry     DateTime?
   resetToken    String?
@@ -28,16 +32,25 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  subscription    Subscription?
-  enrollments     Enrollment[]
-  progress        Progress[]
-  messagesSent    Message[]        @relation("SentMessages")
-  messagesReceived Message[]       @relation("ReceivedMessages")
-  notifications   Notification[]
-  activities      ActivityLog[]
-  examResults     ExamResult[]
-  ticketMessages  TicketMessage[]
-  tickets         Ticket[]
+  subscription      Subscription?
+  enrollments       Enrollment[]
+  progress          Progress[]
+  messagesSent      Message[]        @relation("SentMessages")
+  messagesReceived  Message[]       @relation("ReceivedMessages")
+  notifications     Notification[]
+  activities        ActivityLog[]
+  examResults       ExamResult[]
+  ticketMessages    TicketMessage[]
+  tickets           Ticket[]
+  wallet            Wallet?
+  aiConversations   AIConversation[]
+  aiMessages        AIMessage[]
+  lectureComments   LectureComment[]
+  lectureLikes      LectureLike[]
+  forumPosts        ForumPost[]
+  forumComments     ForumComment[]
+  commentLikes      CommentLike[]
+  testResults       AITestResult[]
 }
 
 model Subscription {
@@ -60,6 +73,7 @@ model Course {
   grade       Int
   price       Float     @default(0)
   isPublished Boolean   @default(false)
+  isAzhar     Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -67,6 +81,7 @@ model Course {
   enrollments Enrollment[]
   purchases   Purchase[]
   exams       Exam[]
+  coupons     Coupon[]
 }
 
 model Chapter {
@@ -90,10 +105,18 @@ model Lecture {
   duration    Int?
   order       Int
   isFree      Boolean   @default(false)
+  aiPrompt   String?
+  allowComments Boolean @default(true)
+  allowLikes   Boolean  @default(true)
+  isAzhar     Boolean   @default(false)
+  youtubeMarks String?
   createdAt   DateTime  @default(now())
 
   progress    Progress[]
   purchases   Purchase[]
+  comments    LectureComment[]
+  likes      LectureLike[]
+  coupons     Coupon[]
 }
 
 model Enrollment {
@@ -221,4 +244,218 @@ model TicketMessage {
   user      User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
   content   String
   createdAt DateTime  @default(now())
+}
+
+model Wallet {
+  id        String    @id @default(cuid())
+  userId    String    @unique
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance   Float     @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  transactions WalletTransaction[]
+}
+
+model WalletTransaction {
+  id          String    @id @default(cuid())
+  walletId    String
+  wallet      Wallet    @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  amount      Float
+  type        String
+  description String?
+  reference   String?
+  createdAt   DateTime  @default(now())
+}
+
+model Coupon {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  discount    Float
+  maxUses     Int?
+  usedCount   Int       @default(0)
+  isPercentage Boolean  @default(false)
+  isGlobal    Boolean   @default(true)
+  courseId    String?
+  lectureId   String?
+  validUntil  DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  
+  course      Course?   @relation(fields: [courseId], references: [id])
+  lecture     Lecture?  @relation(fields: [lectureId], references: [id])
+  usages      CouponUsage[]
+}
+
+model CouponUsage {
+  id        String    @id @default(cuid())
+  couponId  String
+  coupon    Coupon    @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  userId    String
+  usedAt    DateTime  @default(now())
+
+  @@unique([couponId, userId])
+}
+
+model AISettings {
+  id              String    @id @default(cuid())
+  service         String    @default("openai")
+  model           String    @default("gpt-3.5-turbo")
+  apiKey          String?
+  freeModels      String?
+  isEnabled       Boolean   @default(true)
+  testPageEnabled Boolean   @default(false)
+  testPrompt      String?
+  customPrompt    String?
+  searchEnabled   Boolean   @default(false)
+  searchApiKey    String?
+  searchEngine    String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model AIConversation {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  isPinned  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  messages  AIMessage[]
+}
+
+model AIMessage {
+  id             String    @id @default(cuid())
+  conversationId String
+  conversation   AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String
+  content        String
+  imageUrl       String?
+  isThinking     Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  
+  user           User      @relation(fields: [userId], references: [id])
+  userId         String
+}
+
+model PlatformSettings {
+  id              String    @id @default(cuid())
+  name            String    @default("GELVANO")
+  logo            String?
+  instructorName  String    @default("Khaled Osama")
+  instructorImage String?
+  email           String?
+  phone           String?
+  whatsapp        String?
+  facebook        String?
+  youtube         String?
+  description     String?
+  footerText      String?
+  isSubscriptionsEnabled Boolean @default(true)
+  isWalletEnabled       Boolean @default(true)
+  isCodesEnabled        Boolean @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model LectureComment {
+  id        String    @id @default(cuid())
+  lectureId String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  imageUrl  String?
+  parentId  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  lecture   Lecture   @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+  replies   LectureComment[] @relation("CommentReplies")
+  parent    LectureComment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  likes     CommentLike[]    @relation("LectureCommentLikes")
+}
+
+model LectureLike {
+  id        String    @id @default(cuid())
+  lectureId String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+
+  lecture   Lecture   @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+  
+  @@unique([lectureId, userId])
+}
+
+model ForumPost {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  content   String
+  imageUrl  String?
+  isPinned  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  comments  ForumComment[]
+  likes     PostLike[]
+}
+
+model ForumComment {
+  id        String    @id @default(cuid())
+  postId    String
+  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  imageUrl  String?
+  parentId  String?
+  lectureId String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  replies   ForumComment[] @relation("ForumCommentReplies")
+  parent    ForumComment?  @relation("ForumCommentReplies", fields: [parentId], references: [id])
+  likes     CommentLike[]  @relation("ForumCommentLikes")
+}
+
+model PostLike {
+  id        String    @id @default(cuid())
+  postId    String
+  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime  @default(now())
+
+  @@unique([postId, userId])
+}
+
+model CommentLike {
+  id        String    @id @default(cuid())
+  lectureCommentId String?
+  forumCommentId String?
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+
+  lectureComment LectureComment? @relation("LectureCommentLikes", fields: [lectureCommentId], references: [id], onDelete: Cascade)
+  forumComment  ForumComment?  @relation("ForumCommentLikes", fields: [forumCommentId], references: [id], onDelete: Cascade)
+  
+  @@unique([lectureCommentId, userId])
+  @@unique([forumCommentId, userId])
+}
+
+model AITestResult {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject     String
+  questions   String
+  answers     String
+  score       Float
+  difficulty  String
+  timeTaken   Int?
+  createdAt   DateTime  @default(now())
 }

@@ -1,32 +1,43 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { PrismaClient } from '@prisma/client'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const prisma = new PrismaClient()
+
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
-    const tokenHash = searchParams.get('token_hash')
-    const type = searchParams.get('type')
+    const code = searchParams.get('code')
     const email = searchParams.get('email') || ''
 
-    if (!tokenHash) {
+    if (!code || !email) {
       return NextResponse.redirect(new URL('/verify-email?error=invalid', request.url))
     }
 
-    // Verify using Supabase client-side auth
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
-    const { error } = await supabase.auth.verifyOtp({
-      type: 'email',
-      email,
-      token: tokenHash
+    // Find user and verify OTP
+    const user = await prisma.user.findUnique({
+      where: { email }
     })
 
-    if (error) {
-      console.error('Verify error:', error)
+    if (!user) {
       return NextResponse.redirect(new URL('/verify-email?error=invalid', request.url))
     }
+
+    // Check if OTP is valid
+    if (user.otpCode !== code || !user.otpExpiry || new Date() > user.otpExpiry) {
+      return NextResponse.redirect(new URL('/verify-email?error=expired', request.url))
+    }
+
+    // Update user as verified and clear OTP
+    await prisma.user.update({
+      where: { email },
+      data: {
+        isVerified: true,
+        otpCode: null,
+        otpExpiry: null
+      }
+    })
 
     return NextResponse.redirect(new URL('/verify-email?success=true', request.url))
   } catch (error: any) {
