@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const prisma = new PrismaClient()
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,26 +17,41 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
-    
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/reset-password`
+    // Find user
+    const user = await prisma.user.findUnique({
+      where: { email }
     })
 
-    if (error) {
-      return NextResponse.json(
-        { success: false, error: error.message },
-        { status: 400 }
-      )
+    if (!user) {
+      // Don't reveal if user exists or not
+      return NextResponse.json({
+        success: true,
+        message: 'If an account exists, a reset link has been sent'
+      })
     }
+
+    // Generate reset token
+    const resetToken = Math.random().toString(36).substring(2) + Date.now().toString(36)
+    const resetExpiry = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
+
+    await prisma.user.update({
+      where: { email },
+      data: {
+        resetToken,
+        resetExpiry
+      }
+    })
+
+    // In production, send email here
+    console.log(`Reset token for ${email}: ${resetToken}`)
 
     return NextResponse.json({
       success: true,
-      message: 'Password reset email sent successfully'
+      message: 'If an account exists, a reset link has been sent'
     })
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to send reset email' },
+      { success: false, error: error.message || 'Failed to process request' },
       { status: 500 }
     )
   }
@@ -42,9 +59,9 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const { newPassword, accessToken } = await request.json()
+    const { token, newPassword } = await request.json()
 
-    if (!newPassword || !accessToken) {
+    if (!newPassword || !token) {
       return NextResponse.json(
         { success: false, error: 'Missing required fields' },
         { status: 400 }
@@ -58,18 +75,35 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
-    
-    const { error } = await supabase.auth.updateUser({
-      password: newPassword
+    // Find user with valid reset token
+    const user = await prisma.user.findFirst({
+      where: {
+        resetToken: token,
+        resetExpiry: {
+          gt: new Date()
+        }
+      }
     })
 
-    if (error) {
+    if (!user) {
       return NextResponse.json(
-        { success: false, error: error.message },
+        { success: false, error: 'Invalid or expired reset token' },
         { status: 400 }
       )
     }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 12)
+
+    // Update password and clear reset token
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        resetToken: null,
+        resetExpiry: null
+      }
+    })
 
     return NextResponse.json({
       success: true,

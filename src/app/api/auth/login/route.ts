@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const prisma = new PrismaClient()
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,16 +17,32 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
+    // Find user
+    const user = await prisma.user.findUnique({
+      where: { email }
     })
 
-    if (error) {
+    if (!user) {
       return NextResponse.json(
-        { success: false, error: error.message },
+        { success: false, error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' },
+        { status: 401 }
+      )
+    }
+
+    // Verify password
+    const isValidPassword = await bcrypt.compare(password, user.password)
+
+    if (!isValidPassword) {
+      return NextResponse.json(
+        { success: false, error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' },
+        { status: 401 }
+      )
+    }
+
+    // Check if account is active
+    if (!user.isActive) {
+      return NextResponse.json(
+        { success: false, error: 'حسابك غير نشط. تواصل مع الإدارة' },
         { status: 401 }
       )
     }
@@ -32,10 +50,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       user: {
-        id: data.user?.id,
-        email: data.user?.email,
-        name: data.user?.user_metadata?.name,
-        role: data.user?.user_metadata?.role
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        isAzhar: user.isAzhar,
+        schoolYear: user.schoolYear
       }
     })
   } catch (error: any) {

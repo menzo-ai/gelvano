@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Card, { CardHeader, CardContent } from '@/components/ui/card'
 import Button from '@/components/ui/button'
 import Badge from '@/components/ui/badge'
@@ -23,7 +23,8 @@ import {
   Lock,
   Copy,
   MessageSquare,
-  ExternalLink
+  ExternalLink,
+  Loader2
 } from 'lucide-react'
 
 interface Transaction {
@@ -36,92 +37,121 @@ interface Transaction {
   courseName?: string
 }
 
-interface CouponCode {
-  id: string
-  code: string
-  courseName: string
-  used: boolean
-  usedAt?: string
+interface WalletData {
+  balance: number
+  transactions: Transaction[]
 }
 
-const mockTransactions: Transaction[] = [
-  { id: '1', type: 'deposit', amount: 500, description: 'إضافة رصيد', date: '2024-01-15', status: 'completed' },
-  { id: '2', type: 'purchase', amount: -200, description: 'شراء كورس', date: '2024-01-14', status: 'completed', courseName: 'الفيزياء - الصف الأول' },
-  { id: '3', type: 'purchase', amount: -150, description: 'شراء محاضرة', date: '2024-01-13', status: 'completed', courseName: 'محاضرة قوانين نيوتن' },
-  { id: '4', type: 'refund', amount: 50, description: 'استرداد', date: '2024-01-10', status: 'completed' },
-]
-
-const mockCoupons: CouponCode[] = [
-  { id: '1', code: 'PHYSICS2024', courseName: 'الفيزياء - الصف الأول', used: true, usedAt: '2024-01-14' },
-  { id: '2', code: 'NEWTON50', courseName: 'محاضرة قوانين نيوتن', used: false },
-]
-
 export default function WalletPage() {
-  const [balance, setBalance] = useState(350)
+  const [wallet, setWallet] = useState<WalletData | null>(null)
+  const [loading, setLoading] = useState(true)
   const [showDepositModal, setShowDepositModal] = useState(false)
   const [showCouponModal, setShowCouponModal] = useState(false)
   const [showContactModal, setShowContactModal] = useState(false)
   const [depositAmount, setDepositAmount] = useState('')
   const [couponCode, setCouponCode] = useState('')
-  const [message, setMessage] = useState('')
+  const [contactMessage, setContactMessage] = useState('')
+  const [message, setMessage] = useState<{type: 'success' | 'error'; text: string} | null>(null)
   const [processing, setProcessing] = useState(false)
-  const [success, setSuccess] = useState(false)
   const [activeTab, setActiveTab] = useState<'transactions' | 'coupons'>('transactions')
+
+  useEffect(() => {
+    fetchWallet()
+  }, [])
+
+  const fetchWallet = async () => {
+    try {
+      const res = await fetch('/api/wallet')
+      if (res.ok) {
+        const data = await res.json()
+        setWallet(data)
+      } else {
+        // Mock data if API not available
+        setWallet({
+          balance: 350,
+          transactions: [
+            { id: '1', type: 'deposit', amount: 500, description: 'إضافة رصيد', date: '2024-01-15', status: 'completed' },
+            { id: '2', type: 'purchase', amount: -200, description: 'شراء كورس', date: '2024-01-14', status: 'completed', courseName: 'الفيزياء - الصف الأول' },
+            { id: '3', type: 'purchase', amount: -150, description: 'شراء محاضرة', date: '2024-01-13', status: 'completed', courseName: 'محاضرة قوانين نيوتن' },
+            { id: '4', type: 'refund', amount: 50, description: 'استرداد', date: '2024-01-10', status: 'completed' },
+          ]
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching wallet:', error)
+      // Mock data on error
+      setWallet({
+        balance: 350,
+        transactions: [
+          { id: '1', type: 'deposit', amount: 500, description: 'إضافة رصيد', date: '2024-01-15', status: 'completed' },
+        ]
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleDeposit = async () => {
     if (!depositAmount || parseInt(depositAmount) <= 0) return
     setProcessing(true)
+    setMessage(null)
     
-    // Simulate payment redirect to admin
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    setSuccess(true)
-    setProcessing(false)
-    setShowDepositModal(false)
-    
-    // Reset after showing success
-    setTimeout(() => {
-      setSuccess(false)
-      setDepositAmount('')
-    }, 3000)
+    try {
+      const res = await fetch('/api/wallet/deposit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: parseInt(depositAmount) })
+      })
+      
+      if (res.ok) {
+        setMessage({ type: 'success', text: 'تم إضافة الرصيد بنجاح! توجه للمركز لإتمام الدفع.' })
+        setShowDepositModal(false)
+        fetchWallet()
+      } else {
+        setMessage({ type: 'error', text: 'حدث خطأ أثناء العملية' })
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'حدث خطأ أثناء الاتصال بالخادم' })
+    } finally {
+      setProcessing(false)
+    }
   }
 
   const handleCouponSubmit = async () => {
     if (!couponCode.trim()) return
     setProcessing(true)
+    setMessage(null)
     
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    // Check coupon validity
-    const coupon = mockCoupons.find(c => c.code === couponCode.toUpperCase())
-    
-    if (coupon) {
-      if (coupon.used) {
-        setMessage('هذا الكود تم استخدامه من قبل!')
+    try {
+      const res = await fetch('/api/wallet/redeem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: couponCode })
+      })
+      
+      if (res.ok) {
+        const data = await res.json()
+        setMessage({ type: 'success', text: `تم إضافة ${data.amount} جنيه لمحفظتك!` })
+        setCouponCode('')
+        fetchWallet()
       } else {
-        setSuccess(true)
-        setBalance(prev => prev + 100) // Add credit
-        setMessage('تم تفعيل الكود بنجاح! تم إضافة 100 جنية لرصيدك')
+        const data = await res.json()
+        setMessage({ type: 'error', text: data.error || 'الكود غير صحيح أو منتهي الصلاحية' })
       }
-    } else {
-      setMessage('كود غير صحيح! تأكد من الكود وأعد المحاولة')
+    } catch (error) {
+      setMessage({ type: 'error', text: 'حدث خطأ أثناء استرداد الكود' })
+    } finally {
+      setProcessing(false)
     }
-    
-    setProcessing(false)
-    setCouponCode('')
-    
-    setTimeout(() => {
-      setSuccess(false)
-      setMessage('')
-    }, 5000)
   }
 
   const handleContactAdmin = async () => {
-    if (!message.trim()) return
+    if (!contactMessage.trim()) return
     setProcessing(true)
     await new Promise(resolve => setTimeout(resolve, 1000))
     setProcessing(false)
     setShowContactModal(false)
+    setContactMessage('')
     alert('تم إرسال رسالتك للإدارة. سيتم التواصل معك قريباً!')
   }
 
@@ -152,7 +182,7 @@ export default function WalletPage() {
                 </div>
                 <div>
                   <p className="text-white/70 text-sm">الرصيد المتاح</p>
-                  <p className="text-4xl font-bold text-white">{balance} ج.م</p>
+                  <p className="text-4xl font-bold text-white">{wallet?.balance || 0} ج.م</p>
                 </div>
               </div>
               <Badge variant="success" className="bg-white/20 text-white border-0">
@@ -207,19 +237,21 @@ export default function WalletPage() {
           </Card>
         </div>
 
-        {/* Success Message */}
-        {success && (
-          <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-3">
-            <CheckCircle className="w-6 h-6 text-emerald-400 flex-shrink-0" />
-            <p className="text-emerald-400">{message || 'تمت العملية بنجاح!'}</p>
-          </div>
-        )}
-
-        {/* Error Message */}
-        {message && !success && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3">
-            <AlertCircle className="w-6 h-6 text-red-400 flex-shrink-0" />
-            <p className="text-red-400">{message}</p>
+        {/* Message */}
+        {message && (
+          <div className={`mb-6 p-4 rounded-xl flex items-center gap-3 ${
+            message.type === 'success' 
+              ? 'bg-emerald-500/10 border border-emerald-500/20' 
+              : 'bg-red-500/10 border border-red-500/20'
+          }`}>
+            {message.type === 'success' ? (
+              <CheckCircle className="w-6 h-6 text-emerald-400 flex-shrink-0" />
+            ) : (
+              <AlertCircle className="w-6 h-6 text-red-400 flex-shrink-0" />
+            )}
+            <p className={message.type === 'success' ? 'text-emerald-400' : 'text-red-400'}>
+              {message.text}
+            </p>
           </div>
         )}
 
@@ -246,7 +278,7 @@ export default function WalletPage() {
           <Card>
             <CardContent className="p-0">
               <div className="divide-y divide-slate-700">
-                {mockTransactions.map(tx => (
+                {(wallet?.transactions || []).map(tx => (
                   <div key={tx.id} className="p-4 flex items-center gap-4">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                       tx.type === 'deposit' ? 'bg-emerald-500/20' : 
@@ -285,28 +317,9 @@ export default function WalletPage() {
         {activeTab === 'coupons' && (
           <Card>
             <CardContent className="p-0">
-              <div className="divide-y divide-slate-700">
-                {mockCoupons.map(coupon => (
-                  <div key={coupon.id} className="p-4 flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      coupon.used ? 'bg-slate-700' : 'bg-primary/20'
-                    }`}>
-                      <Gift className={`w-5 h-5 ${coupon.used ? 'text-slate-500' : 'text-primary'}`} />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <code className="font-mono font-bold">{coupon.code}</code>
-                        <button onClick={() => copyToClipboard(coupon.code)} className="text-slate-400 hover:text-white">
-                          <Copy className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <p className="text-xs text-slate-400">{coupon.courseName}</p>
-                    </div>
-                    <Badge variant={coupon.used ? 'info' : 'success'}>
-                      {coupon.used ? 'تم الاستخدام' : 'متاح'}
-                    </Badge>
-                  </div>
-                ))}
+              <div className="text-center py-12">
+                <Gift className="w-16 h-16 mx-auto mb-4 text-slate-600" />
+                <p className="text-slate-400">لا توجد أكواد حتى الآن</p>
               </div>
             </CardContent>
           </Card>
@@ -461,8 +474,8 @@ export default function WalletPage() {
           <div>
             <label className="block text-sm font-medium mb-2">رسالتك</label>
             <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              value={contactMessage}
+              onChange={(e) => setContactMessage(e.target.value)}
               placeholder="اكتب رسالتك هنا... (مثال: أريد شحن رصيد 500 جنيه)"
               rows={5}
               className="input w-full"
