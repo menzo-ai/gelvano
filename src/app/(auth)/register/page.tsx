@@ -3,43 +3,54 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { registerSchema, RegisterInput } from '@/lib/validations'
+import { useForm, Controller } from 'react-hook-form'
 import Button from '@/components/ui/button'
 import Input from '@/components/ui/input'
-import { GraduationCap, Mail, Lock, User, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react'
+import { GraduationCap, Mail, Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Phone, Hash } from 'lucide-react'
+
+interface RegisterFormData {
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+  studentId: string
+  parentPhone: string
+  schoolYear: number
+}
 
 export default function RegisterPage() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [canRegister, setCanRegister] = useState(true)
   const [registrationType, setRegistrationType] = useState<'admin' | 'student'>('student')
 
   useEffect(() => {
     // Check if first registration (admin)
-    fetch('/api/auth/register')
+    fetch('/api/auth/check')
       .then(res => res.json())
       .then(data => {
-        setCanRegister(data.canRegister)
         if (data.canRegister) {
           setRegistrationType('admin')
         }
       })
-      .catch(() => {})
+      .catch(() => {
+        setRegistrationType('student')
+      })
   }, [])
 
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
-  } = useForm<RegisterInput>({
-    resolver: zodResolver(registerSchema),
+  } = useForm<RegisterFormData>({
+    defaultValues: {
+      schoolYear: 1
+    }
   })
 
-  const onSubmit = async (data: RegisterInput) => {
+  const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true)
     setError('')
 
@@ -47,15 +58,31 @@ export default function RegisterPage() {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          password: data.password,
+          studentId: data.studentId,
+          parentPhone: data.parentPhone,
+          schoolYear: data.schoolYear,
+          role: registrationType === 'admin' ? 'SUPER_ADMIN' : 'STUDENT'
+        }),
       })
 
       const result = await response.json()
 
       if (!response.ok) {
-        setError(result.error)
+        setError(result.error || 'حدث خطأ أثناء التسجيل')
         return
       }
+
+      // Store user info
+      localStorage.setItem('user', JSON.stringify({
+        id: result.userId,
+        email: result.email,
+        name: data.name,
+        role: registrationType === 'admin' ? 'SUPER_ADMIN' : 'STUDENT'
+      }))
 
       if (result.requiresVerification) {
         router.push(`/verify-email?email=${encodeURIComponent(data.email)}`)
@@ -77,7 +104,7 @@ export default function RegisterPage() {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary/10 rounded-full blur-3xl" />
       </div>
 
-      <div className="w-full max-w-md relative">
+      <div className="w-full max-w-lg relative">
         {/* Logo */}
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-3">
@@ -118,6 +145,7 @@ export default function RegisterPage() {
               </div>
             )}
 
+            {/* Name */}
             <div className="relative">
               <User className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
               <Input
@@ -129,6 +157,7 @@ export default function RegisterPage() {
               />
             </div>
 
+            {/* Email */}
             <div className="relative">
               <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
               <Input
@@ -140,6 +169,58 @@ export default function RegisterPage() {
               />
             </div>
 
+            {/* Student ID */}
+            <div className="relative">
+              <Hash className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+              <Input
+                {...register('studentId')}
+                type="text"
+                placeholder="رقم الجلوس"
+                className="pr-12"
+                error={errors.studentId?.message}
+              />
+            </div>
+
+            {/* Parent Phone */}
+            <div className="relative">
+              <Phone className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+              <Input
+                {...register('parentPhone')}
+                type="tel"
+                placeholder="رقم تليفون ولى الأمر"
+                className="pr-12"
+                error={errors.parentPhone?.message}
+              />
+            </div>
+
+            {/* School Year - Using Controller for proper state management */}
+            <div>
+              <label className="block text-sm text-slate-400 mb-2">الصف الدراسي</label>
+              <Controller
+                name="schoolYear"
+                control={control}
+                render={({ field }) => (
+                  <div className="grid grid-cols-3 gap-2">
+                    {[1, 2, 3].map((year) => (
+                      <button
+                        key={year}
+                        type="button"
+                        onClick={() => field.onChange(year)}
+                        className={`p-3 rounded-lg border transition-all ${
+                          field.value === year 
+                            ? 'border-primary bg-primary/20 text-primary' 
+                            : 'border-slate-700 bg-slate-800 text-slate-300 hover:border-primary/50'
+                        }`}
+                      >
+                        الصف {year} الثانوي
+                      </button>
+                    ))}
+                  </div>
+                )}
+              />
+            </div>
+
+            {/* Password */}
             <div className="relative">
               <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
               <Input
@@ -158,6 +239,7 @@ export default function RegisterPage() {
               </button>
             </div>
 
+            {/* Confirm Password */}
             <div className="relative">
               <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
               <Input

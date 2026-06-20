@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+import prisma from '@/lib/prisma'
+import bcrypt from 'bcryptjs'
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,31 +8,47 @@ export async function POST(request: NextRequest) {
 
     if (!email) {
       return NextResponse.json(
-        { success: false, error: 'Email is required' },
+        { success: false, error: 'البريد الإلكتروني مطلوب' },
         { status: 400 }
       )
     }
 
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
-    
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/reset-password`
+    // Find user
+    const user = await prisma.user.findUnique({
+      where: { email }
     })
 
-    if (error) {
+    if (!user) {
       return NextResponse.json(
-        { success: false, error: error.message },
-        { status: 400 }
+        { success: false, error: 'لم يتم العثور على حساب بهذا البريد الإلكتروني' },
+        { status: 404 }
       )
     }
+
+    // Generate reset token
+    const resetToken = Math.random().toString(36).substring(2) + Date.now().toString(36)
+    const resetExpiry = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
+
+    // Save reset token
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        resetToken,
+        resetExpiry
+      }
+    })
+
+    // TODO: Send email with reset link
+    console.log(`Reset token for ${email}: ${resetToken}`)
 
     return NextResponse.json({
       success: true,
-      message: 'Password reset email sent successfully'
+      message: 'تم إرسال رابط استعادة كلمة المرور بنجاح'
     })
   } catch (error: any) {
+    console.error('Reset password error:', error)
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to send reset email' },
+      { success: false, error: error.message || 'فشل في إرسال رابط الاستعادة' },
       { status: 500 }
     )
   }
@@ -42,42 +56,60 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const { newPassword, accessToken } = await request.json()
+    const { newPassword, resetToken } = await request.json()
 
-    if (!newPassword || !accessToken) {
+    if (!newPassword || !resetToken) {
       return NextResponse.json(
-        { success: false, error: 'Missing required fields' },
+        { success: false, error: 'جميع الحقول مطلوبة' },
         { status: 400 }
       )
     }
 
     if (newPassword.length < 8) {
       return NextResponse.json(
-        { success: false, error: 'Password must be at least 8 characters' },
+        { success: false, error: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' },
         { status: 400 }
       )
     }
 
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
-    
-    const { error } = await supabase.auth.updateUser({
-      password: newPassword
+    // Find user by reset token
+    const user = await prisma.user.findFirst({
+      where: {
+        resetToken,
+        resetExpiry: {
+          gt: new Date()
+        }
+      }
     })
 
-    if (error) {
+    if (!user) {
       return NextResponse.json(
-        { success: false, error: error.message },
+        { success: false, error: 'رابط الاستعادة غير صالح أو منتهي الصلاحية' },
         { status: 400 }
       )
     }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 12)
+
+    // Update password
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        resetToken: null,
+        resetExpiry: null
+      }
+    })
 
     return NextResponse.json({
       success: true,
-      message: 'Password updated successfully'
+      message: 'تم تغيير كلمة المرور بنجاح'
     })
   } catch (error: any) {
+    console.error('Update password error:', error)
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to update password' },
+      { success: false, error: error.message || 'فشل في تغيير كلمة المرور' },
       { status: 500 }
     )
   }

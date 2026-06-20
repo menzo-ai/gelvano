@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
@@ -30,17 +29,23 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const result = await signIn('credentials', {
-        email: data.email,
-        password: data.password,
-        redirect: false,
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       })
 
-      if (result?.error) {
-        setError(result.error)
-      } else {
+      const result = await response.json()
+
+      if (!response.ok) {
+        setError(result.error || 'حدث خطأ أثناء تسجيل الدخول')
+        return
+      }
+
+      if (result.success) {
+        // Store user info in localStorage
+        localStorage.setItem('user', JSON.stringify(result.user))
         router.push('/dashboard')
-        router.refresh()
       }
     } catch (err) {
       setError('حدث خطأ أثناء تسجيل الدخول')

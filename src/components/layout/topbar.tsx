@@ -4,8 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { signOut, useSession } from 'next-auth/react'
-import ThemeToggle from '@/components/ThemeToggle'
-import { Bell, Search, LogOut, User, Settings } from 'lucide-react'
+import { Bell, Search, LogOut, User, Settings, Code } from 'lucide-react'
 
 interface TopBarProps {
   title?: string
@@ -36,12 +35,18 @@ export default function TopBar({ title }: TopBarProps) {
             />
           </div>
 
+          <Link 
+            href="/developer"
+            className="p-2 rounded-lg hover:bg-slate-700/50 transition-colors text-primary"
+            title="المطور"
+          >
+            <Code className="w-5 h-5" />
+          </Link>
+
           <button className="relative p-2 rounded-lg hover:bg-slate-700/50 transition-colors">
             <Bell className="w-5 h-5 text-slate-400" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
           </button>
-
-          <ThemeToggle className="scale-90" />
 
           <div className="relative">
             <button 

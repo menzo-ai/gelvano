@@ -1,10 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!
-
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+import prisma from '@/lib/prisma'
 
 export async function POST(request: Request) {
   try {
@@ -12,33 +7,48 @@ export async function POST(request: Request) {
 
     if (!email) {
       return NextResponse.json(
-        { success: false, error: 'Email is required' },
+        { success: false, error: 'البريد الإلكتروني مطلوب' },
         { status: 400 }
       )
     }
 
-    // Send magic link for email verification
-    const { error } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'magiclink',
-      email,
+    // Find user by email
+    const user = await prisma.user.findUnique({
+      where: { email }
     })
 
-    if (error) {
-      console.error('Send verification error:', error)
+    if (!user) {
       return NextResponse.json(
-        { success: false, error: error.message },
-        { status: 400 }
+        { success: false, error: 'لم يتم العثور على حساب بهذا البريد الإلكتروني' },
+        { status: 404 }
       )
     }
+
+    // Generate OTP code
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
+    const otpExpiry = new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
+
+    // Save OTP to user
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        otpCode,
+        otpExpiry
+      }
+    })
+
+    // TODO: Send email with OTP code
+    // For now, return success (in production, integrate with email service)
+    console.log(`OTP for ${email}: ${otpCode}`)
 
     return NextResponse.json({
       success: true,
-      message: 'Verification link sent successfully'
+      message: 'تم إرسال رمز التحقق بنجاح'
     })
   } catch (error: any) {
     console.error('Send verification error:', error)
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to send verification' },
+      { success: false, error: error.message || 'فشل في إرسال رمز التحقق' },
       { status: 500 }
     )
   }

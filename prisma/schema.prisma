@@ -21,6 +21,8 @@ model User {
   schoolYear    Int?
   isVerified    Boolean   @default(false)
   isActive      Boolean   @default(true)
+  isBlocked     Boolean   @default(false)
+  canComment    Boolean   @default(true)
   otpCode       String?
   otpExpiry     DateTime?
   resetToken    String?
@@ -28,16 +30,45 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  subscription    Subscription?
-  enrollments     Enrollment[]
-  progress        Progress[]
-  messagesSent    Message[]        @relation("SentMessages")
-  messagesReceived Message[]       @relation("ReceivedMessages")
-  notifications   Notification[]
-  activities      ActivityLog[]
-  examResults     ExamResult[]
-  ticketMessages  TicketMessage[]
-  tickets         Ticket[]
+  subscription       Subscription?
+  enrollments        Enrollment[]
+  progress           Progress[]
+  messagesSent       Message[]        @relation("SentMessages")
+  messagesReceived   Message[]        @relation("ReceivedMessages")
+  notifications      Notification[]
+  activities         ActivityLog[]
+  examResults        ExamResult[]
+  ticketMessages     TicketMessage[]
+  tickets            Ticket[]
+  lectureComments     LectureComment[]
+  commentReplies     CommentReply[]
+  commentLikes       CommentLike[]
+  lectureLikes        LectureLike[]
+  forumMessages       ForumMessage[]
+  forumReplies       ForumReply[]
+  forumLikes         ForumLike[]
+  aiConversations     AIConversation[]
+}
+
+model AISettings {
+  id              String    @id @default(cuid())
+  isEnabled       Boolean   @default(false)
+  provider        String    @default("openai")
+  apiKey          String?
+  searchEngine    String    @default("google")
+  searchApiKey    String?
+  customPrompt    String    @default("أنت معلم فيزياء متخصص. أجب على الأسئلة بشكل واضح ومبسط.")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model AIConversation {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  String
+  context   String?
+  createdAt DateTime  @default(now())
 }
 
 model Subscription {
@@ -80,20 +111,25 @@ model Chapter {
 }
 
 model Lecture {
-  id          String    @id @default(cuid())
-  chapterId   String
-  chapter     Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  title       String
-  description String?
-  videoUrl    String
-  pdfUrl      String?
-  duration    Int?
-  order       Int
-  isFree      Boolean   @default(false)
-  createdAt   DateTime  @default(now())
+  id           String    @id @default(cuid())
+  chapterId    String
+  chapter      Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  title        String
+  description  String?
+  aiContext    String?
+  videoUrl     String
+  pdfUrl       String?
+  duration     Int?
+  order        Int
+  isFree       Boolean   @default(false)
+  allowComments Boolean  @default(true)
+  allowLikes   Boolean  @default(true)
+  createdAt    DateTime  @default(now())
 
-  progress    Progress[]
-  purchases   Purchase[]
+  progress         Progress[]
+  purchases        Purchase[]
+  comments         LectureComment[]
+  likes            LectureLike[]
 }
 
 model Enrollment {
@@ -164,6 +200,60 @@ model ExamResult {
   createdAt DateTime  @default(now())
 }
 
+model LectureComment {
+  id         String    @id @default(cuid())
+  lectureId  String
+  lecture    Lecture   @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content    String
+  imageUrl   String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  replies    CommentReply[]
+  likes      CommentLike[]
+}
+
+model CommentReply {
+  id         String    @id @default(cuid())
+  commentId  String
+  comment    LectureComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content    String
+  imageUrl   String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  likes      CommentLike[]
+}
+
+model CommentLike {
+  id         String    @id @default(cuid())
+  commentId  String?
+  comment    LectureComment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  replyId    String?
+  reply      CommentReply?   @relation(fields: [replyId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isLike     Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+
+  @@unique([userId, commentId])
+}
+
+model LectureLike {
+  id         String    @id @default(cuid())
+  lectureId  String
+  lecture    Lecture   @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+
+  @@unique([userId, lectureId])
+}
+
 model Message {
   id           String    @id @default(cuid())
   senderId     String
@@ -221,4 +311,60 @@ model TicketMessage {
   user      User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
   content   String
   createdAt DateTime  @default(now())
+}
+
+// Forum Models
+model ForumCategory {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  messages    ForumMessage[]
+}
+
+model ForumMessage {
+  id         String    @id @default(cuid())
+  categoryId String
+  category   ForumCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title      String
+  content    String
+  imageUrl   String?
+  isPinned   Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  replies    ForumReply[]
+  likes      ForumLike[]
+}
+
+model ForumReply {
+  id         String    @id @default(cuid())
+  messageId  String
+  message    ForumMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content    String
+  imageUrl   String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  likes      ForumLike[]
+}
+
+model ForumLike {
+  id         String    @id @default(cuid())
+  messageId  String?
+  message    ForumMessage? @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  replyId    String?
+  reply      ForumReply?   @relation(fields: [replyId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isLike     Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+
+  @@unique([userId, messageId])
 }

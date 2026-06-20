@@ -15,45 +15,45 @@ import {
   Shield,
   Zap,
   Users,
-  GraduationCap
+  GraduationCap,
+  Linkedin,
+  Github,
+  ExternalLink
 } from 'lucide-react'
 
-const skills = [
+const developerSkills = [
   { name: 'Next.js', level: 95, color: 'from-white to-gray-300' },
   { name: 'React', level: 90, color: 'from-blue-400 to-blue-600' },
-  { name: 'TypeScript', level: 85, color: 'from-blue-300 to-blue-500' },
+  { name: 'TypeScript', level: 88, color: 'from-blue-300 to-blue-500' },
   { name: 'Tailwind CSS', level: 92, color: 'from-cyan-400 to-cyan-600' },
-  { name: 'Node.js', level: 80, color: 'from-green-400 to-green-600' },
-  { name: 'PostgreSQL', level: 75, color: 'from-blue-500 to-indigo-600' },
-  { name: 'Supabase', level: 88, color: 'from-emerald-400 to-emerald-600' },
-  { name: 'Prisma', level: 82, color: 'from-purple-400 to-purple-600' },
+  { name: 'Node.js', level: 82, color: 'from-green-400 to-green-600' },
+  { name: 'Prisma ORM', level: 85, color: 'from-purple-400 to-purple-600' },
 ]
 
-const technologies = [
-  { name: 'Next.js 14', icon: Monitor },
-  { name: 'TypeScript', icon: Code },
-  { name: 'Tailwind CSS', icon: Star },
-  { name: 'Supabase', icon: Database },
-  { name: 'Prisma ORM', icon: Database },
-  { name: 'NextAuth', icon: Shield },
-]
-
-const features = [
+const platformFeatures = [
   { icon: Users, title: 'نظام متعدد المستخدمين', desc: 'طلاب، أدمن، سوبر أدمن مع صلاحيات مختلفة' },
   { icon: GraduationCap, title: 'منهج مصري كامل', desc: 'الصف الأول والثاني والثالث الثانوي - عام وأزهر' },
   { icon: Zap, title: 'فيديوهات محمية', desc: 'مشغل فيديو آمن بدون علامات YouTube' },
   { icon: Shield, title: 'أمان متقدم', desc: 'JWT، Rate Limiting، RBAC' },
-  { icon: Database, title: 'قاعدة بيانات قوية', desc: 'Supabase + PostgreSQL' },
+  { icon: Database, title: 'قاعدة بيانات قوية', desc: 'Supabase + SQLite' },
   { icon: Rocket, title: 'قابل للتوسع', desc: 'SaaS Architecture' },
 ]
 
 export default function DeveloperPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 blur-3xl" />
-        <div className="relative max-w-6xl mx-auto px-4 py-20">
+        <div className="relative max-w-6xl mx-auto px-4 pt-12 pb-20">
           <div className="text-center mb-12">
+            {/* Developer Avatar */}
+            <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary to-accent p-1">
+              <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center">
+                <span className="text-5xl font-bold text-white">M</span>
+              </div>
+            </div>
+            
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 text-primary mb-6">
               <Code className="w-4 h-4" />
               <span className="text-sm font-medium">Full Stack Developer</span>
@@ -68,29 +68,37 @@ export default function DeveloperPage() {
             </p>
 
             <div className="flex flex-wrap justify-center gap-4">
-              <Button size="lg">
-                <Mail className="w-5 h-5" />
-                moha147wa@gmail.com
-              </Button>
-              <Button variant="outline" size="lg">
-                <Phone className="w-5 h-5" />
-                01003092656
-              </Button>
+              <a href="mailto:moha147wa@gmail.com">
+                <Button size="lg" className="gap-2">
+                  <Mail className="w-5 h-5" />
+                  moha147wa@gmail.com
+                </Button>
+              </a>
+              <a href="tel:01003092656">
+                <Button variant="outline" size="lg" className="gap-2">
+                  <Phone className="w-5 h-5" />
+                  01003092656
+                </Button>
+              </a>
             </div>
           </div>
         </div>
       </div>
 
+      {/* About the Platform */}
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">GELVANO Learning Platform</h2>
           <p className="text-slate-400 max-w-2xl mx-auto">
             منصة تعليمية متكاملة لمنهج الفيزياء المصري للصفوف الثانوية
           </p>
+          <p className="text-slate-500 mt-2">
+            Instructor: Mr. Khaled Osama
+          </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 mb-12">
-          {features.map((feature, index) => (
+          {platformFeatures.map((feature, index) => (
             <Card key={index} className="hover:scale-105 transition-transform">
               <CardContent className="p-6">
                 <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center mb-4">
@@ -104,6 +112,7 @@ export default function DeveloperPage() {
         </div>
       </div>
 
+      {/* Developer Skills */}
       <div className="max-w-6xl mx-auto px-4 py-12">
         <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
           <Code className="w-6 h-6 text-primary" />
@@ -111,7 +120,7 @@ export default function DeveloperPage() {
         </h2>
 
         <div className="grid md:grid-cols-2 gap-6">
-          {skills.map((skill, index) => (
+          {developerSkills.map((skill, index) => (
             <div key={index} className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="font-medium">{skill.name}</span>
@@ -128,6 +137,7 @@ export default function DeveloperPage() {
         </div>
       </div>
 
+      {/* Technologies Used */}
       <div className="max-w-6xl mx-auto px-4 py-12">
         <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
           <Rocket className="w-6 h-6 text-primary" />
@@ -135,7 +145,14 @@ export default function DeveloperPage() {
         </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {technologies.map((tech, index) => (
+          {[
+            { name: 'Next.js 14', icon: Monitor },
+            { name: 'TypeScript', icon: Code },
+            { name: 'Tailwind CSS', icon: Star },
+            { name: 'Prisma', icon: Database },
+            { name: 'SQLite', icon: Database },
+            { name: 'NextAuth', icon: Shield },
+          ].map((tech, index) => (
             <Card key={index} className="hover:scale-105 transition-transform cursor-pointer">
               <CardContent className="p-4 text-center">
                 <tech.icon className="w-8 h-8 text-primary mx-auto mb-2" />
@@ -146,6 +163,7 @@ export default function DeveloperPage() {
         </div>
       </div>
 
+      {/* Updates History */}
       <div className="max-w-6xl mx-auto px-4 py-12">
         <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
           <Star className="w-6 h-6 text-primary" />
@@ -180,13 +198,14 @@ export default function DeveloperPage() {
         </div>
       </div>
 
+      {/* Footer */}
       <div className="max-w-6xl mx-auto px-4 py-12 pb-20">
         <Card className="bg-gradient-to-r from-primary/20 to-accent/20">
           <CardContent className="p-8 text-center">
             <Heart className="w-12 h-12 text-red-400 mx-auto mb-4" />
             <h3 className="text-xl font-bold mb-2">صُنع بـ ❤️</h3>
             <p className="text-slate-400 mb-4">
-              جميع الحقوق محفوظة © 2024 GELVANO Education Platform
+              جميع الحقوق محفوظة © 2026 GELVANO Education Platform
             </p>
             <p className="text-sm text-slate-500">
               Developed by Mohamed El-Manzalawy
