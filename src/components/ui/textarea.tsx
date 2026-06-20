@@ -6,11 +6,10 @@ import { cn } from '@/lib/utils'
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string
   error?: string
-  helperText?: string
 }
 
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, label, error, helperText, ...props }, ref) => {
+  ({ className, label, error, ...props }, ref) => {
     return (
       <div className="w-full">
         {label && (
@@ -24,7 +23,6 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           {...props}
         />
         {error && <p className="error-text">{error}</p>}
-        {helperText && !error && <p className="text-xs text-slate-500 mt-1">{helperText}</p>}
       </div>
     )
   }

@@ -222,19 +222,3 @@ model TicketMessage {
   content   String
   createdAt DateTime  @default(now())
 }
-
-// Site Configuration
-model SiteConfig {
-  id                   String   @id @default("site_config")
-  dbProvider           String   @default("sqlite") // sqlite, supabase, mongodb, neon, turso, upstash
-  dbConfig             String   @default("{}") // JSON string with database credentials
-  emailEnabled         Boolean  @default(false)
-  emailConfig          String   @default("{}") // JSON string with email settings
-  aiEnabled            Boolean  @default(true)
-  aiConfig             String   @default("{}") // JSON string with AI settings
-  siteName             String   @default("GELVANO")
-  siteDescription      String   @default("منصة جلفانو للفيزياء")
-  maintenanceMode      Boolean  @default(false)
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-}
