@@ -32,6 +32,7 @@ import {
   Award,
   Home,
   Play,
+  Globe,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -74,6 +75,7 @@ const adminLinks = [
   { href: '/admin/messages', label: 'الرسائل', icon: MessageSquare },
   { href: '/admin/analytics', label: 'التحليلات', icon: BarChart3 },
   { href: '/admin/ai-settings', label: 'إعدادات AI', icon: Brain },
+  { href: '/admin/platform-settings', label: 'إعدادات المنصة', icon: Globe },
   { href: '/admin/activity-log', label: 'سجل النشاط', icon: Activity },
   { href: '/admin/data', label: 'البيانات', icon: Database },
   { href: '/admin/settings', label: 'الإعدادات', icon: Settings2 },

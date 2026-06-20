@@ -6,9 +6,57 @@ import Link from 'next/link'
 import { GraduationCap, BookOpen, FileText, Video, Users, Brain, ChevronLeft, Play, CheckCircle, Youtube, Facebook, MessageCircle, Star, Trophy, Zap, Shield, Headphones, Award } from 'lucide-react'
 import Button from '@/components/ui/button'
 
+interface Instructor {
+  id: string
+  name: string
+  title: string
+  image: string
+  rating: number
+}
+
+interface PlatformSettings {
+  platformName: string
+  tagline: string
+  description: string
+  platformLogo: string
+  heroImage: string
+  heroTitle: string
+  heroSubtitle: string
+  heroCtaText: string
+  heroVideoUrl: string
+  instructors: Instructor[]
+  youtubeUrl: string
+  facebookUrl: string
+  whatsappUrl: string
+  instagramUrl: string
+  contactEmail: string
+  contactPhone: string
+  footerText: string
+}
+
 export default function HomePage() {
   const router = useRouter()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [settings, setSettings] = useState<PlatformSettings | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Fetch platform settings
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch('/api/settings')
+        if (response.ok) {
+          const data = await response.json()
+          setSettings(data)
+        }
+      } catch (error) {
+        console.error('Error fetching settings:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchSettings()
+  }, [])
 
   useEffect(() => {
     const user = localStorage.getItem('user')
@@ -31,27 +79,42 @@ export default function HomePage() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
-              <GraduationCap className="w-7 h-7 text-white" />
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20 overflow-hidden">
+              {settings?.platformLogo ? (
+                <img src={settings.platformLogo} alt={settings.platformName} className="w-10 h-10 object-contain" />
+              ) : (
+                <GraduationCap className="w-7 h-7 text-white" />
+              )}
             </div>
             <div>
-              <span className="text-2xl font-bold text-gradient">GELVANO</span>
-              <p className="text-xs text-slate-400 -mt-1">Physics Platform</p>
+              <span className="text-2xl font-bold text-gradient">{settings?.platformName || 'GELVANO'}</span>
+              <p className="text-xs text-slate-400 -mt-1">{settings?.tagline || 'Physics Platform'}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             {/* Social Links */}
             <div className="hidden md:flex items-center gap-2 mr-4">
-              <a href="https://www.youtube.com/@Gelvano_ph12" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors">
-                <Youtube className="w-5 h-5" />
-              </a>
-              <a href="https://www.facebook.com/people/Mr-khaled-osama/100064048811580/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="https://wa.me/message/NI47K5DKEZUIE1" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-colors">
-                <MessageCircle className="w-5 h-5" />
-              </a>
+              {settings?.youtubeUrl && (
+                <a href={settings.youtubeUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors">
+                  <Youtube className="w-5 h-5" />
+                </a>
+              )}
+              {settings?.facebookUrl && (
+                <a href={settings.facebookUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors">
+                  <Facebook className="w-5 h-5" />
+                </a>
+              )}
+              {settings?.whatsappUrl && (
+                <a href={settings.whatsappUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-colors">
+                  <MessageCircle className="w-5 h-5" />
+                </a>
+              )}
+              {settings?.instagramUrl && (
+                <a href={settings.instagramUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-pink-500/10 text-pink-400 hover:bg-pink-500/20 transition-colors">
+                  <Award className="w-5 h-5" />
+                </a>
+              )}
             </div>
             
             {isLoggedIn ? (
@@ -86,24 +149,23 @@ export default function HomePage() {
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm mb-6">
                 <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                منصة جلفانو للفيزياء والعلوم المتكاملة
+                {settings?.tagline || 'منصة تعليم الفيزياء'}
               </div>
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                كل مشاكلك في الفيزياء
+                {settings?.heroTitle || 'كل مشاكلك في الفيزياء'}
                 <br />
                 <span className="text-gradient">محلولة مع جلفانو!</span>
               </h1>
 
               <p className="text-lg text-slate-400 mb-8 leading-relaxed">
-                منصة جلفانو في الفيزياء والعلوم المتكاملة بتوفر لك أقوي شرح وحل ومراجعة 
-                وأهم الملفات اللي هتلاقي فيها كل الملخصات والأسئلة اللي هتخليك قد أي سؤال يا بطل!
+                {settings?.heroSubtitle || 'منصة تعليمية متميزة لدراسة الفيزياء للمرحلة الثانوية'}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Button size="lg" onClick={handleStartLearning} className="gap-2 shadow-lg shadow-primary/20">
                   <Play className="w-5 h-5" />
-                  ابدأ المذاكرة
+                  {settings?.heroCtaText || 'ابدأ المذاكرة'}
                 </Button>
                 <Link href="/exams">
                   <Button variant="outline" size="lg" className="gap-2">
@@ -113,36 +175,56 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              {/* Instructor Badge */}
-              <div className="inline-flex items-center gap-3 p-3 rounded-xl bg-slate-800/50 border border-slate-700">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-lg">
-                  م
+              {/* Instructors Section */}
+              {settings?.instructors && settings.instructors.length > 0 && (
+                <div className="flex flex-wrap gap-4">
+                  {settings.instructors.map((instructor) => (
+                    <div key={instructor.id} className="inline-flex items-center gap-3 p-3 rounded-xl bg-slate-800/50 border border-slate-700">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-lg overflow-hidden">
+                        {instructor.image ? (
+                          <img src={instructor.image} alt={instructor.name} className="w-full h-full object-cover" />
+                        ) : (
+                          instructor.name.charAt(0)
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-bold">{instructor.name}</p>
+                        <p className="text-sm text-slate-400">{instructor.title}</p>
+                      </div>
+                      <div className="flex items-center gap-1 text-amber-400 mr-4">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`w-4 h-4 ${i < instructor.rating ? 'fill-current text-amber-400' : 'text-slate-600'}`} />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <p className="font-bold">MR/Khaled Osama</p>
-                  <p className="text-sm text-slate-400">Physics Teacher</p>
-                </div>
-                <div className="flex items-center gap-1 text-amber-400 mr-4">
-                  <Star className="w-4 h-4 fill-current" />
-                  <Star className="w-4 h-4 fill-current" />
-                  <Star className="w-4 h-4 fill-current" />
-                  <Star className="w-4 h-4 fill-current" />
-                  <Star className="w-4 h-4 fill-current" />
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Right Image/Illustration */}
             <div className="relative hidden lg:block">
               <div className="relative w-full aspect-square max-w-lg mx-auto">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-accent/30 rounded-full blur-3xl" />
-                <div className="absolute inset-8 bg-slate-800/50 rounded-full flex items-center justify-center border border-slate-700">
-                  <div className="text-center">
-                    <GraduationCap className="w-24 h-24 text-primary mx-auto mb-4" />
-                    <p className="text-2xl font-bold">Physics Academy</p>
-                    <p className="text-slate-400">Learn, Practice, Succeed</p>
+                {settings?.heroImage ? (
+                  <img 
+                    src={settings.heroImage} 
+                    alt="Hero" 
+                    className="absolute inset-0 w-full h-full object-cover rounded-3xl border border-slate-700" 
+                  />
+                ) : (
+                  <div className="absolute inset-8 bg-slate-800/50 rounded-full flex items-center justify-center border border-slate-700">
+                    <div className="text-center">
+                      {settings?.platformLogo ? (
+                        <img src={settings.platformLogo} alt={settings.platformName} className="w-24 h-24 mx-auto mb-4 object-contain" />
+                      ) : (
+                        <GraduationCap className="w-24 h-24 text-primary mx-auto mb-4" />
+                      )}
+                      <p className="text-2xl font-bold">{settings?.platformName || 'Physics Academy'}</p>
+                      <p className="text-slate-400">{settings?.tagline || 'Learn, Practice, Succeed'}</p>
+                    </div>
                   </div>
-                </div>
+                )}
                 
                 {/* Floating badges */}
                 <div className="absolute top-10 right-10 bg-slate-800 p-3 rounded-xl shadow-lg border border-slate-700 animate-bounce">
@@ -295,21 +377,34 @@ export default function HomePage() {
           </div>
 
           <div className="flex flex-wrap justify-center gap-4 mb-12">
-            <a href="https://www.youtube.com/@Gelvano_ph12" target="_blank" rel="noopener noreferrer" 
-               className="flex items-center gap-3 px-6 py-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all">
-              <Youtube className="w-6 h-6" />
-              <span>YouTube</span>
-            </a>
-            <a href="https://www.facebook.com/people/Mr-khaled-osama/100064048811580/" target="_blank" rel="noopener noreferrer"
-               className="flex items-center gap-3 px-6 py-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 transition-all">
-              <Facebook className="w-6 h-6" />
-              <span>Facebook</span>
-            </a>
-            <a href="https://wa.me/message/NI47K5DKEZUIE1" target="_blank" rel="noopener noreferrer"
-               className="flex items-center gap-3 px-6 py-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500/20 transition-all">
-              <MessageCircle className="w-6 h-6" />
-              <span>WhatsApp</span>
-            </a>
+            {settings?.youtubeUrl && (
+              <a href={settings.youtubeUrl} target="_blank" rel="noopener noreferrer" 
+                 className="flex items-center gap-3 px-6 py-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all">
+                <Youtube className="w-6 h-6" />
+                <span>YouTube</span>
+              </a>
+            )}
+            {settings?.facebookUrl && (
+              <a href={settings.facebookUrl} target="_blank" rel="noopener noreferrer"
+                 className="flex items-center gap-3 px-6 py-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 transition-all">
+                <Facebook className="w-6 h-6" />
+                <span>Facebook</span>
+              </a>
+            )}
+            {settings?.whatsappUrl && (
+              <a href={settings.whatsappUrl} target="_blank" rel="noopener noreferrer"
+                 className="flex items-center gap-3 px-6 py-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500/20 transition-all">
+                <MessageCircle className="w-6 h-6" />
+                <span>WhatsApp</span>
+              </a>
+            )}
+            {settings?.instagramUrl && (
+              <a href={settings.instagramUrl} target="_blank" rel="noopener noreferrer"
+                 className="flex items-center gap-3 px-6 py-4 rounded-xl bg-pink-500/10 border border-pink-500/20 text-pink-400 hover:bg-pink-500/20 transition-all">
+                <Award className="w-6 h-6" />
+                <span>Instagram</span>
+              </a>
+            )}
           </div>
 
           <div className="flex flex-wrap justify-center gap-4">
@@ -325,12 +420,14 @@ export default function HomePage() {
                 ابدأ مذاكرة
               </Button>
             </Link>
-            <a href="https://wa.me/message/NI47K5DKEZUIE1" target="_blank" rel="noopener noreferrer">
-              <Button size="lg" className="gap-2 bg-gradient-to-r from-green-500 to-emerald-500">
-                <MessageCircle className="w-5 h-5" />
-                تواصل مع تيم GELVANO
-              </Button>
-            </a>
+            {settings?.whatsappUrl && (
+              <a href={settings.whatsappUrl} target="_blank" rel="noopener noreferrer">
+                <Button size="lg" className="gap-2 bg-gradient-to-r from-green-500 to-emerald-500">
+                  <MessageCircle className="w-5 h-5" />
+                  تواصل مع فريق {settings.platformName}
+                </Button>
+              </a>
+            )}
           </div>
         </div>
       </section>
@@ -341,16 +438,20 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                  <GraduationCap className="w-7 h-7 text-white" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center overflow-hidden">
+                  {settings?.platformLogo ? (
+                    <img src={settings.platformLogo} alt={settings.platformName} className="w-8 h-8 object-contain" />
+                  ) : (
+                    <GraduationCap className="w-7 h-7 text-white" />
+                  )}
                 </div>
                 <div>
-                  <span className="text-2xl font-bold text-gradient">GELVANO</span>
-                  <p className="text-xs text-slate-400">Physics Platform</p>
+                  <span className="text-2xl font-bold text-gradient">{settings?.platformName || 'GELVANO'}</span>
+                  <p className="text-xs text-slate-400">{settings?.tagline || 'Physics Platform'}</p>
                 </div>
               </div>
               <p className="text-slate-400 text-sm">
-                منصة تعليمية متكاملة للفيزياء والعلوم للمرحلة الثانوية
+                {settings?.description || 'منصة تعليمية متكاملة للفيزياء والعلوم للمرحلة الثانوية'}
               </p>
             </div>
 
@@ -367,18 +468,29 @@ export default function HomePage() {
             <div>
               <h4 className="font-bold mb-4">تواصل معنا</h4>
               <div className="space-y-2 text-sm text-slate-400">
-                <p>moha147wa@gmail.com</p>
-                <p>01003092656</p>
+                {settings?.contactEmail && <p>{settings.contactEmail}</p>}
+                {settings?.contactPhone && <p>{settings.contactPhone}</p>}
                 <div className="flex items-center gap-2 mt-3">
-                  <a href="https://www.youtube.com/@Gelvano_ph12" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700">
-                    <Youtube className="w-4 h-4" />
-                  </a>
-                  <a href="https://www.facebook.com/people/Mr-khaled-osama/100064048811580/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700">
-                    <Facebook className="w-4 h-4" />
-                  </a>
-                  <a href="https://wa.me/message/NI47K5DKEZUIE1" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700">
-                    <MessageCircle className="w-4 h-4" />
-                  </a>
+                  {settings?.youtubeUrl && (
+                    <a href={settings.youtubeUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700">
+                      <Youtube className="w-4 h-4" />
+                    </a>
+                  )}
+                  {settings?.facebookUrl && (
+                    <a href={settings.facebookUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700">
+                      <Facebook className="w-4 h-4" />
+                    </a>
+                  )}
+                  {settings?.whatsappUrl && (
+                    <a href={settings.whatsappUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700">
+                      <MessageCircle className="w-4 h-4" />
+                    </a>
+                  )}
+                  {settings?.instagramUrl && (
+                    <a href={settings.instagramUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700">
+                      <Award className="w-4 h-4" />
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
@@ -386,11 +498,13 @@ export default function HomePage() {
 
           <div className="border-t border-slate-800 mt-8 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-slate-400 text-sm">
-              Developed by Mohamed El-Manzalawy
+              {settings?.footerText || 'Developed by Mohamed El-Manzalawy'}
             </p>
-            <p className="text-slate-500 text-xs">
-              Instructor: Mr. Khaled Osama
-            </p>
+            {settings?.instructors && settings.instructors.length > 0 && (
+              <p className="text-slate-500 text-xs">
+                Instructor: {settings.instructors[0].name}
+              </p>
+            )}
           </div>
         </div>
       </footer>

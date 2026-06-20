@@ -1,14 +1,18 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Only create Supabase client if env vars are available
+export const supabase: SupabaseClient | null = supabaseUrl && supabaseAnonKey 
+  ? createClient(supabaseUrl, supabaseAnonKey) 
+  : null
 
-// Helper functions for Supabase operations
+// Helper functions for Supabase operations (returns null if Supabase not configured)
 export const supabaseHelpers = {
   // Users
   async getUser(id: string) {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') }
     const { data, error } = await supabase
       .from('users')
       .select('*')
@@ -18,6 +22,7 @@ export const supabaseHelpers = {
   },
 
   async updateUser(id: string, updates: any) {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') }
     const { data, error } = await supabase
       .from('users')
       .update(updates)
@@ -29,6 +34,7 @@ export const supabaseHelpers = {
 
   // Courses
   async getCourses(grade?: number) {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') }
     let query = supabase
       .from('courses')
       .select(`
@@ -52,6 +58,7 @@ export const supabaseHelpers = {
   },
 
   async getCourse(id: string) {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') }
     const { data, error } = await supabase
       .from('courses')
       .select(`
@@ -70,6 +77,7 @@ export const supabaseHelpers = {
 
   // Enrollments
   async enrollInCourse(userId: string, courseId: string) {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') }
     const { data, error } = await supabase
       .from('enrollments')
       .insert({
@@ -83,6 +91,7 @@ export const supabaseHelpers = {
   },
 
   async getEnrollments(userId: string) {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') }
     const { data, error } = await supabase
       .from('enrollments')
       .select(`
@@ -95,6 +104,7 @@ export const supabaseHelpers = {
 
   // Progress
   async updateProgress(userId: string, lectureId: string, completed: boolean = true) {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') }
     const { data, error } = await supabase
       .from('progress')
       .upsert({
@@ -110,6 +120,7 @@ export const supabaseHelpers = {
 
   // Notifications
   async getNotifications(userId: string) {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') }
     const { data, error } = await supabase
       .from('notifications')
       .select('*')
@@ -120,6 +131,7 @@ export const supabaseHelpers = {
   },
 
   async createNotification(notification: any) {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') }
     const { data, error } = await supabase
       .from('notifications')
       .insert(notification)
@@ -129,6 +141,7 @@ export const supabaseHelpers = {
   },
 
   async markNotificationRead(id: string) {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') }
     const { data, error } = await supabase
       .from('notifications')
       .update({ isRead: true })
@@ -140,6 +153,7 @@ export const supabaseHelpers = {
 
   // Messages
   async getMessages(userId1: string, userId2: string) {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') }
     const { data, error } = await supabase
       .from('messages')
       .select('*')
@@ -149,6 +163,7 @@ export const supabaseHelpers = {
   },
 
   async sendMessage(message: any) {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') }
     const { data, error } = await supabase
       .from('messages')
       .insert(message)
@@ -159,6 +174,7 @@ export const supabaseHelpers = {
 
   // Support Tickets
   async getTickets(userId?: string) {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') }
     let query = supabase
       .from('tickets')
       .select(`
@@ -176,6 +192,7 @@ export const supabaseHelpers = {
   },
 
   async createTicket(ticket: any) {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') }
     const { data, error } = await supabase
       .from('tickets')
       .insert(ticket)
@@ -185,6 +202,7 @@ export const supabaseHelpers = {
   },
 
   async addTicketMessage(ticketId: string, message: any) {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') }
     const { data, error } = await supabase
       .from('ticket_messages')
       .insert({ ...message, ticketId })
@@ -195,6 +213,7 @@ export const supabaseHelpers = {
 
   // Storage
   async uploadFile(bucket: string, path: string, file: File) {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') }
     const { data, error } = await supabase.storage
       .from(bucket)
       .upload(path, file, {
@@ -205,6 +224,7 @@ export const supabaseHelpers = {
   },
 
   async getPublicUrl(bucket: string, path: string) {
+    if (!supabase) return null
     const { data } = supabase.storage
       .from(bucket)
       .getPublicUrl(path)

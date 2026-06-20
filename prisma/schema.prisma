@@ -222,3 +222,45 @@ model TicketMessage {
   content   String
   createdAt DateTime  @default(now())
 }
+
+model PlatformSettings {
+  id            String    @id @default(cuid())
+  
+  // Basic Info
+  platformName  String    @default("GELVANO")
+  tagline       String    @default("منصة تعليم الفيزياء")
+  description   String?   
+  
+  // Logo & Images
+  platformLogo  String?   
+  heroImage     String?   
+  
+  // Hero Section
+  heroTitle     String?   
+  heroSubtitle  String?   
+  heroCtaText   String?   
+  heroVideoUrl  String?   
+  
+  // Instructors (JSON array)
+  instructors   String    @default("[]")
+  
+  // Social Links
+  youtubeUrl    String?   
+  facebookUrl   String?   
+  whatsappUrl   String?   
+  instagramUrl  String?   
+  
+  // Contact Info
+  contactEmail  String?   
+  contactPhone  String?   
+  
+  // Footer
+  footerText    String?   
+  
+  // Active Status
+  isActive      Boolean   @default(true)
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
